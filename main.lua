@@ -1,6 +1,7 @@
 --[[
     TanKet
-    - A Two Player Tank Battle Game.
+    - A Tower Defense Survival Game.
+    - Player has to survive as long as possible from a hoard of attackers.
 
     Author: Rohit Mehta
 
@@ -21,15 +22,14 @@ function love.load()
     ]]
     Object = require 'classic'
 
-    -- Get the Tank class
-    require 'Tank'
+    require 'Tower'
+    require 'Enemy'
+    require 'Missile'
 
     ----------------------------------------------------------------------------
     -- Constants:
     WINDOW_WIDTH = 1280
     WINDOW_HEIGHT = 720
-
-    TANK_SPEED = 10
 
     love.window.setTitle('TanKet')
     --[[
@@ -42,7 +42,10 @@ function love.load()
         resizable = false
     })
 
-    player = Tank(110, 200)
+    player = Tower(WINDOW_WIDTH / 2 - 30, WINDOW_HEIGHT / 2 - 30) -- the central tower
+
+    -- testEnemy = Enemy(WINDOW_WIDTH, WINDOW_HEIGHT / 2, 'rtl')
+    -- testMissile = Missile(WINDOW_WIDTH / 2 - 30, WINDOW_HEIGHT / 2 - 30, 'ltr')
 
     --[[
         Gamestate is one of:
@@ -58,28 +61,26 @@ end
     Update the state while game is in the "play" state
 ]]
 function love.update(dt)
+    if Gamestate == "start" then
+        
+    elseif Gamestate == "play" then
 
+    end
     if love.keyboard.isDown('w') then
-        player.y = player.y - TANK_SPEED
+        player:moveUp()
     elseif love.keyboard.isDown('s') then
-        player.y = player.y + TANK_SPEED
+        player:moveDown()
     elseif love.keyboard.isDown('d') then
-        player.x = player.x + TANK_SPEED
+        player:moveRight()
     elseif love.keyboard.isDown('a') then
-        player.x = player.x - TANK_SPEED
+        player:moveLeft()
     end
 end
 
 function love.draw()
-    love.graphics.setColor(1,1,1)
-    love.graphics.printf(
-        'Currently in "' .. Gamestate .. '" state.',
-        0,
-        100,
-        WINDOW_WIDTH,
-        'center'
-    )
+    -- testEnemy:render()
     player:render()
+    -- testMissile:render()
 end
 
 
@@ -89,7 +90,21 @@ end
 function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
-    elseif key == 'space' or key == 'enter' then
-        Gamestate = "play"
+    elseif key == 'enter' then
+        if Gamestate == "start" then Gamestate = "play" end
     end
+end
+
+--[[
+    Object Object -> Boolean
+    produce true if the given objects are colliding
+]]
+---@diagnostic disable-next-line: lowercase-global
+function areColliding(object1, object2)
+    if not object1 and object2 then  -- either of the objects is nil
+        return false
+    end
+
+    -- using AABB collision detection
+
 end
