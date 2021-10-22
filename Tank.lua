@@ -26,6 +26,16 @@ function Tank:new(x, y)
   self.body = love.graphics.newImage('img/body.png')
 end
 
+--[[
+  Returns the position of turret mouth, and it's orientation
+]]
+function Tank:getTurretPos()
+  local turret_length = 48
+  return self.x + turret_length * math.cos(self.orientation - math.pi / 2),  -- adjust for the turret angle offset of math.pi / 2
+         self.y + turret_length * math.sin(self.orientation - math.pi / 2),
+         self.orientation
+end
+
 -- turn the Tank in anti-clockwise direction
 function Tank:turnAntiClock()
   self.orientation = self.orientation - math.pi / 180 -- by 1 degree
@@ -38,9 +48,6 @@ end
 
 -- draw the tank onto the screen
 function Tank:render()
-    -- love.graphics.setColor(self.r, self.g, self.b)
-    -- love.graphics.rectangle('fill', self.x, self.y, 50, 50)
-
     love.graphics.draw(self.body, self.x, self.y, 0, 1, 1, 128 / 2, 128 / 2) -- offsetting x,y by 128/2
     -- draw the tank with rotaion, the image size is 127x127 so offsetting by 127/2 to make it rotate around center
     love.graphics.draw(self.turret, self.x, self.y, self.orientation, 1, 1, 127 / 2, 127 / 2)
