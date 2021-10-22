@@ -15,7 +15,7 @@ Enemy = Object:extend()
 local WIDTH = 20
 local HEIGHT = 20
 
-local SPEED = 1
+local SPEED = 10
 
 -- Enemy:new()
 -- Integer Integer Move -> Enemy
@@ -65,5 +65,6 @@ end
 function Enemy:render()
     love.graphics.setColor(1,0,0)
     love.graphics.rectangle('fill', self.x, self.y, WIDTH, HEIGHT)
+    love.graphics.setColor(1,1,1)
 end
 
