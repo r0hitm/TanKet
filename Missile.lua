@@ -45,8 +45,8 @@ end
     move the missile in the direction of angle
 ]]
 function Missile:update(dt)
-    self.x = self.x + SPEED * math.cos(self.angle - math.pi / 2)    -- adjust for the turret angle offset of math.pi / 2
-    self.y = self.y + SPEED * math.sin(self.angle - math.pi / 2)
+    self.x = self.x + SPEED * math.cos(self.angle)
+    self.y = self.y + SPEED * math.sin(self.angle)
 end
 
 function Missile:render()
