@@ -83,9 +83,17 @@ function love.update(dt)
         ]]
     elseif Gamestate == "play" then
         if love.keyboard.isDown('right') then
-            tank:turnClock()
+            tank:turnClock(dt)
         elseif love.keyboard.isDown('left') then
-            tank:turnAntiClock()
+            tank:turnAntiClock(dt)
+        elseif love.keyboard.isDown('w') then
+            tank:moveForward(dt)
+        elseif love.keyboard.isDown('s') then
+            tank:moveBackward(dt)
+        elseif love.keyboard.isDown('a') then
+            tank:turnLeft(dt)
+        elseif love.keyboard.isDown('d') then
+            tank:turnRight(dt)
         end
 
         for i, missile in ipairs(listOfMissiles) do
@@ -99,7 +107,7 @@ function love.update(dt)
         end
 
         for _, enemy in ipairs(listOfEnemies) do
-            enemy:approach(dt, WINDOW_WIDTH / 2 - 30, WINDOW_HEIGHT / 2 - 30)
+            enemy:approach(dt, tank:getPos())
         end
     end
 end
@@ -160,7 +168,7 @@ end
 
 function love.keyreleased(key)
     if key == 'space' then
-        table.insert(listOfMissiles, #listOfMissiles + 1, Missile(tank:getTurretPos()))
+        table.insert(listOfMissiles, #listOfMissiles + 1, Missile(tank:getTurretMouth()))
     end
 end
 
