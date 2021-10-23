@@ -48,7 +48,9 @@ end
 
 -- draw the tank onto the screen
 function Tank:render()
-    love.graphics.draw(self.body, self.x, self.y, 0, 1, 1, 128 / 2, 128 / 2) -- offsetting x,y by 128/2
-    -- draw the tank with rotaion, the image size is 127x127 so offsetting by 127/2 to make it rotate around center
-    love.graphics.draw(self.turret, self.x, self.y, self.orientation, 1, 1, 127 / 2, 127 / 2)
+  local turret_width, turret_height = self.turret:getDimensions()
+  local body_width, body_height = self.body:getDimensions()
+
+  love.graphics.draw(self.body, self.x, self.y, 0, 1, 1, body_width / 2, body_height / 2)
+  love.graphics.draw(self.turret, self.x, self.y, self.orientation, 1, 1, turret_width / 2, turret_height / 2)
 end
