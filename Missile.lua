@@ -28,10 +28,17 @@ function Missile:new(x, y, angle)
 end
 
 --[[
-    Return the position and the direction of travel of the missile
+    Return the position
 ]]
 function Missile:getPos()
-    return self.x, self.y, self.angle
+    return self.x, self.y
+end
+
+--[[
+    returns the angle of the missile travel
+]]
+function Missile:getAngle()
+    return self.angle
 end
 
 --[[

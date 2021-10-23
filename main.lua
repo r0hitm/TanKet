@@ -44,10 +44,12 @@ function love.load()
     TITLE_FONT = love.graphics.newFont('font/market_deco.ttf', 30)
     SMALL_FONT = love.graphics.newFont('font/market_deco.ttf', 12)
 
+    explosionPNG = love.graphics.newImage('img/explosion.png')
+
     tank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
     listOfEnemies = {}
     listOfMissiles = {}
-    spawnEnemies(100)
+    spawnEnemies(50)
 
     love.window.setTitle('TanKet')
     --[[
@@ -86,8 +88,14 @@ function love.update(dt)
             tank:turnAntiClock()
         end
 
-        for _, missile in ipairs(listOfMissiles) do
-            missile:update(dt)
+        for i, missile in ipairs(listOfMissiles) do
+            local x, y = missile:getPos()
+            if x > WINDOW_WIDTH and x < WINDOW_WIDTH or
+               y > WINDOW_HEIGHT and y < WINDOW_HEIGHT then
+                   table.remove(listOfMissiles, i)
+            else
+                missile:update(dt)
+            end
         end
 
         for _, enemy in ipairs(listOfEnemies) do
@@ -122,8 +130,18 @@ function love.draw()
             enemy:render()
         end
 
-        for _, missile in ipairs(listOfMissiles) do
+        for i, missile in ipairs(listOfMissiles) do
             missile:render()
+
+            for j, enemy in ipairs(listOfEnemies) do
+                local x1, y1 = missile:getPos()
+                local x2, y2 = enemy:getPos()
+                if areColliding(x1, y1, x2, y2) then
+                    renderExplosionAt(missile:getPos())
+                    table.remove(listOfEnemies, j)
+                    table.remove(listOfMissiles, i)
+                end
+            end
         end
     end
 end
@@ -151,15 +169,18 @@ function love.quit()
 end
 
 --[[
-    Object Object -> Boolean
-    produce true if the given objects are colliding
+    Number Number Number Number -> Boolean
+    produce true if the given objects, passed as two pairs of numbers, are colliding
 ]]
-function areColliding(object1, object2)
-    if not object1 and object2 then  -- either of the objects is nil
+function areColliding(x1, y1, x2, y2)
+    local HIT_RANGE = 20 * math.sqrt(2) / 2
+    local hit_radius = math.sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2))
+
+    if hit_radius <= HIT_RANGE then
+        return true
+    else
         return false
     end
-
-    -- using AABB collision detection
 
 end
 
@@ -192,4 +213,12 @@ function displayFPS()
     love.graphics.setColor(0, 255/255, 0, 255/255)
     love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 10, 10)
     love.graphics.setColor(1,1,1)
+end
+
+--[[
+    draws the explosion image at the given coordinates
+]]
+function renderExplosionAt(x, y)
+    love.graphics.setColor(1,1,1,1)
+    love.graphics.draw(explosionPNG, x, y, 0, 0.3, 0.3, explosionPNG:getWidth() / 2, explosionPNG:getHeight() / 2)
 end
