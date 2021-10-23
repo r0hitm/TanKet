@@ -24,8 +24,8 @@ function Tank:new(x, y)
   self.speed = 3
 
   -- the drawable for the tank
-  self.turret = love.graphics.newImage('img/turret.png')
-  self.body = love.graphics.newImage('img/body.png')
+  self.turret = love.graphics.newImage('img/Tank/turret.png')
+  self.body = love.graphics.newImage('img/Tank/body.png')
 end
 
 --[[
