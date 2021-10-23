@@ -53,7 +53,7 @@ end
     Number Number -> Boolean
     Produce true if the current positon is same as the given x,y
 ]]
-function Enemy:atCoord(x, y)
+function Enemy:getPos(x, y)
     if self.x == x and self.y == y then
         return true
     else

@@ -45,8 +45,8 @@ function love.load()
     SMALL_FONT = love.graphics.newFont('font/market_deco.ttf', 12)
 
     tank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
-    enemies = {}
-    missiles = {}
+    listOfEnemies = {}
+    listOfMissiles = {}
     spawnEnemies(100)
 
     love.window.setTitle('TanKet')
@@ -86,11 +86,11 @@ function love.update(dt)
             tank:turnAntiClock()
         end
 
-        for _, missile in ipairs(missiles) do
+        for _, missile in ipairs(listOfMissiles) do
             missile:update(dt)
         end
 
-        for _, enemy in ipairs(enemies) do
+        for _, enemy in ipairs(listOfEnemies) do
             enemy:approach(dt, WINDOW_WIDTH / 2 - 30, WINDOW_HEIGHT / 2 - 30)
         end
     end
@@ -118,11 +118,11 @@ function love.draw()
         love.graphics.setBackgroundColor(0.5, 0.5, 0.15)
         tank:render()
 
-        for _, enemy in ipairs(enemies) do
+        for _, enemy in ipairs(listOfEnemies) do
             enemy:render()
         end
 
-        for _, missile in ipairs(missiles) do
+        for _, missile in ipairs(listOfMissiles) do
             missile:render()
         end
     end
@@ -142,7 +142,7 @@ end
 
 function love.keyreleased(key)
     if key == 'space' then
-        table.insert(missiles, #missiles + 1, Missile(tank:getTurretPos()))
+        table.insert(listOfMissiles, #listOfMissiles + 1, Missile(tank:getTurretPos()))
     end
 end
 
@@ -170,13 +170,13 @@ function spawnEnemies(num)
     local i = 1
     while i <= num do
         table.insert(
-            enemies,
-            #enemies + 1,
+            listOfEnemies,
+            #listOfEnemies + 1,
             Enemy(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
                 math.random(WINDOW_HEIGHT)))
 
-        table.insert(enemies,
-            #enemies + 1,
+        table.insert(listOfEnemies,
+            #listOfEnemies + 1,
             Enemy(math.random(WINDOW_WIDTH),
                 math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_HEIGHT, WINDOW_HEIGHT + 100)))
         i = i + 1
