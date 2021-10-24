@@ -8,26 +8,10 @@
     Author: Rohit Mehta
 
     Represents the generic Enemy in the game.
+    Contains the menthods used by all enemies.
 ]]
 
 Enemy = Object:extend()
-
-local WIDTH = 20
-local HEIGHT = 20
-
-local SPEED = 10
-
--- Enemy:new()
--- Integer Integer Move -> Enemy
--- creates an enemy at x,y
-function Enemy:new(x, y)
-  self.x = x or 0
-  self.y = y or 0
-end
-
-function Enemy:getPos()
-    return self.x, self.y
-end
 
 --[[
     Float Number Number -> nil
@@ -36,16 +20,16 @@ end
 function Enemy:approach(dt, x, y)
     -- move along x-axis
     if x > self.x then      -- move towards right of current position
-        self.x = self.x + SPEED * dt
+        self.x = self.x + self.speed * dt
     elseif x < self.x then  -- move towards the left of current position
-        self.x = self.x - SPEED * dt
+        self.x = self.x - self.speed * dt
     end
 
     -- move along y-axis
     if y > self.y then      -- move down from the current position
-        self.y = self.y + SPEED * dt
+        self.y = self.y + self.speed * dt
     elseif y < self.y then  -- move up from the current position
-        self.y = self.y - SPEED * dt
+        self.y = self.y - self.speed * dt
     end
 end
 
@@ -57,10 +41,13 @@ function Enemy:getPos()
     return self.x, self.y
 end
 
--- draw the enemy onto the screen
+--[[
+    render the enemy on the screen
+]]
 function Enemy:render()
-    love.graphics.setColor(1,0,0)
-    love.graphics.rectangle('fill', self.x, self.y, WIDTH, HEIGHT)
-    love.graphics.setColor(1,1,1)
+    -- make sure the enemy sprite exists
+    if self.sprite then
+        love.graphics.setColor(1,1,1)
+        love.graphics.draw(self.sprite, self.x, self.y, 0, .2, .2)
+    end
 end
-

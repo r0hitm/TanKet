@@ -31,7 +31,7 @@ function love.load()
     Object = require 'classic'
 
     require 'Tank'
-    require 'Enemy'
+    require 'EnemyList'
     require 'Missile'
 
     math.randomseed(os.time())
@@ -44,12 +44,14 @@ function love.load()
     TITLE_FONT = love.graphics.newFont('font/market_deco.ttf', 30)
     SMALL_FONT = love.graphics.newFont('font/market_deco.ttf', 12)
 
-    explosionPNG = love.graphics.newImage('img/explosion.png')
+    EXPLOSION_PNG = love.graphics.newImage('img/explosion.png')
+    SOIL_PNG = love.graphics.newImage('img/ground/soil.jpg')
+    GRASS_PNG = love.graphics.newImage('img/ground/grass.jpg')
 
     tank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
     listOfEnemies = {}
     listOfMissiles = {}
-    spawnEnemies(50)
+    spawnEnemies(10)
 
     love.window.setTitle('TanKet')
     --[[
@@ -61,6 +63,23 @@ function love.load()
         fullscreen = false,
         resizable = false
     })
+
+    --[[
+        set up the canvas for the bacground ground and grass
+    ]]
+    ground_canvas = love.graphics.newCanvas(love.graphics.getDimensions())
+
+    --- render the soil and grass tiles on the canvas using alpha blend mode
+    love.graphics.setCanvas(ground_canvas)
+        love.graphics.clear()
+        love.graphics.setBlendMode("alpha")
+        love.graphics.setColor(1,1,1,0.9)
+        for i = 0, love.graphics.getWidth() / SOIL_PNG:getWidth() do
+            for j = 0, love.graphics.getHeight() / SOIL_PNG:getHeight() do
+                love.graphics.draw(math.random() < 0.3 and GRASS_PNG or SOIL_PNG, i * SOIL_PNG:getWidth(), j * SOIL_PNG:getHeight())
+            end
+        end
+    love.graphics.setCanvas()
 
     --[[
         Gamestate is one of:
@@ -98,6 +117,7 @@ function love.update(dt)
 
         for i, missile in ipairs(listOfMissiles) do
             local x, y = missile:getPos()
+            -- remove the missiles if out of screen
             if x > WINDOW_WIDTH and x < WINDOW_WIDTH or
                y > WINDOW_HEIGHT and y < WINDOW_HEIGHT then
                    table.remove(listOfMissiles, i)
@@ -113,8 +133,6 @@ function love.update(dt)
 end
 
 function love.draw()
-    displayFPS()
-
     if Gamestate == "start" then
         --[[
             print a big welcome message onto the screen,
@@ -131,7 +149,15 @@ function love.draw()
         )
 
     elseif Gamestate == "play" then
-        love.graphics.setBackgroundColor(0.5, 0.5, 0.15)
+        -- very important!: reset color before drawing to canvas to have colors properly displayed
+        -- see discussion here: https://love2d.org/forums/viewtopic.php?f=4&p=211418#p211418
+        love.graphics.setColor(1, 1, 1, 1)
+
+        -- Use the premultiplied alpha blend mode when drawing the Canvas itself to prevent improper blending.
+        love.graphics.setBlendMode("alpha")
+        love.graphics.draw(ground_canvas)
+        
+        ---
         tank:render()
 
         for _, enemy in ipairs(listOfEnemies) do
@@ -152,6 +178,7 @@ function love.draw()
             end
         end
     end
+    displayFPS()
 end
 
 
@@ -167,7 +194,7 @@ function love.keypressed(key)
 end
 
 function love.keyreleased(key)
-    if key == 'space' then
+    if key == 'down' then
         table.insert(listOfMissiles, #listOfMissiles + 1, Missile(tank:getTurretMouth()))
     end
 end
@@ -198,15 +225,46 @@ end
 function spawnEnemies(num)
     local i = 1
     while i <= num do
+        -- random value used to get the enemies on random 
+        local rnd = math.random()
+
+        if rnd < 0.25 then  -- call Fan350, our fastest enemey (ghost)
+            table.insert(
+                listOfEnemies,
+                #listOfEnemies + 1,
+                Fan350(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
+                math.random(WINDOW_HEIGHT)))
+
+        elseif rnd >= .25 and rnd < .50 then    -- call Gantasmito (ghost)
+            table.insert(
+                listOfEnemies,
+                #listOfEnemies + 1,
+                Gantasmito(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
+                math.random(WINDOW_HEIGHT)))
+
+        elseif rnd >= .5 and rnd < .75 then     -- call Perro_Huevo (mole)
+            table.insert(
+                listOfEnemies,
+                #listOfEnemies + 1,
+                Perro_Huevo(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
+                math.random(WINDOW_HEIGHT)))
+
+        else    -- call pez (fish)
+            table.insert(
+                listOfEnemies,
+                #listOfEnemies + 1,
+                Pez(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
+                math.random(WINDOW_HEIGHT)))
+        end
         table.insert(
             listOfEnemies,
             #listOfEnemies + 1,
-            Enemy(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
+            Perro_Huevo(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
                 math.random(WINDOW_HEIGHT)))
 
         table.insert(listOfEnemies,
             #listOfEnemies + 1,
-            Enemy(math.random(WINDOW_WIDTH),
+            Pez(math.random(WINDOW_WIDTH),
                 math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_HEIGHT, WINDOW_HEIGHT + 100)))
         i = i + 1
     end
@@ -228,5 +286,5 @@ end
 ]]
 function renderExplosionAt(x, y)
     love.graphics.setColor(1,1,1,1)
-    love.graphics.draw(explosionPNG, x, y, 0, 0.3, 0.3, explosionPNG:getWidth() / 2, explosionPNG:getHeight() / 2)
+    love.graphics.draw(EXPLOSION_PNG, x, y, 0, 0.3, 0.3, EXPLOSION_PNG:getWidth() / 2, EXPLOSION_PNG:getHeight() / 2)
 end
