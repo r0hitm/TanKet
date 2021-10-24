@@ -24,13 +24,3 @@ function Pez:new(x, y)
 
     self.speed = 12
 end
-
---[[
-    Float Number Number -> nil
-    moves the enemy towards the given coordinates (x, y) by in dt
-
-    Pez follows player in sinosudial fashion
-]]
--- function Pez:moveTowards(dt, x, y)
-    
--- end

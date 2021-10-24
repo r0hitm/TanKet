@@ -16,21 +16,11 @@ Fan350 = Enemy:extend()
 
 function Fan350:new(x, y)
     Fan350.super.new(self, x, y)
-    
+
     self.sprite = love.graphics.newImage('img/Enemy/Fan350.png')
-    
+
     self.width = self.sprite:getWidth() * self.scale
     self.height = self.sprite:getHeight() * self.scale
 
     self.speed = 16
 end
-
---[[
-    Float Number Number -> nil
-    moves the enemy towards the given coordinates (x, y) by in dt
-
-    Fan350 follows the player in spiral fashion
-]]
--- function Fan350:moveTowards(dt, x, y)
-    
--- end
