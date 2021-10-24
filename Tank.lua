@@ -39,7 +39,7 @@ end
   Returns the position of turret mouth, and it's turretAngle
 ]]
 function Tank:getTurretMouth()
-  local turret_length = 48
+  local turret_length = 48 * .8
   return self.x + turret_length * math.cos(self.turretAngle + self.bodyAngle),
          self.y + turret_length * math.sin(self.turretAngle + self.bodyAngle),
          self.bodyAngle + self.turretAngle
@@ -81,6 +81,6 @@ function Tank:render()
   local turret_width, turret_height = self.turret:getDimensions()
   local body_width, body_height = self.body:getDimensions()
 
-  love.graphics.draw(self.body, self.x, self.y, self.bodyAngle, 1, 1, body_width / 2, body_height / 2)
-  love.graphics.draw(self.turret, self.x, self.y, self.bodyAngle + self.turretAngle, 1, 1, turret_width / 2, turret_height / 2)
+  love.graphics.draw(self.body, self.x, self.y, self.bodyAngle, .8, .8, body_width / 2, body_height / 2)
+  love.graphics.draw(self.turret, self.x, self.y, self.bodyAngle + self.turretAngle, .8, .8, turret_width / 2, turret_height / 2)
 end
