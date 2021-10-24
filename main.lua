@@ -69,7 +69,6 @@ function love.load()
 
     listOfEnemies = {}
     listOfMissiles = {}
-    spawnEnemies(50)
 
     love.window.setTitle('TanKet')
     --[[
@@ -103,9 +102,17 @@ function love.load()
         Gamestate is one of:
             - "start"       -- start screen
             - "play"        -- game is being played
+            - "nextLevel"   -- interval between two consecutive levels
             - "over"        -- game over
     ]]
     Gamestate = "start"
+
+    --[[
+        Level are endless with increasing enemy count and damage-delt
+    ]]
+    Level = 1
+    Enemy_Count = 50
+    spawnEnemies(Enemy_Count)
 end
 
 --[[
@@ -155,7 +162,7 @@ function love.update(dt)
                 enemy is colliding with player and inflicts damage to the player
             ]]
             if areCollidingWith(enemy, player_tank) then
-                player_tank:inflictDamage()
+                player_tank:inflictDamage(enemy:getDamage())
                 
                 -- is player dead?
                 if player_tank:getHealth() == 0 then    -- yes
@@ -163,6 +170,11 @@ function love.update(dt)
                 end
             end
             enemy:moveTowards(dt, player_tank:getPos())
+        end
+
+        --- clear current level, load next level
+        if #listOfEnemies == 0 then
+            Gamestate = "nextLevel"
         end
     end
 end
@@ -184,14 +196,7 @@ function love.draw()
         )
 
     elseif Gamestate == "play" then
-        -- very important!: reset color before drawing to canvas to have colors properly displayed
-        -- see discussion here: https://love2d.org/forums/viewtopic.php?f=4&p=211418#p211418
-        love.graphics.setColor(1, 1, 1, 1)
-
-        -- Use the premultiplied alpha blend mode when drawing the Canvas itself to prevent improper blending.
-        love.graphics.setBlendMode("alpha")
-        love.graphics.draw(ground_canvas)
-        
+        drawBackground()
         ---
         player_tank:render()
 
@@ -250,6 +255,27 @@ function love.draw()
             WINDOW_WIDTH,
             'center'
         )
+
+    elseif Gamestate == "nextLevel" then
+        drawBackground()
+        -----
+        love.graphics.setColor(1, 1, 0)
+        love.graphics.printf(
+            'Congratulations! You cleared Level ' .. Level,
+            SUBTITLE_FONT,
+            0,
+            WINDOW_HEIGHT / 2 - 6,
+            WINDOW_WIDTH,
+            "center"
+        )
+        love.graphics.printf(
+            'Press Enter to go to next Level...',
+            MED_FONT,
+            0,
+            WINDOW_HEIGHT / 2 - 6 + 100,
+            WINDOW_WIDTH,
+            "center"
+        )
     end
 end
 
@@ -265,6 +291,9 @@ function love.keypressed(key)
             Gamestate = "play"
         elseif Gamestate == "over" then
             Gamestate = "start"
+        elseif Gamestate == "nextLevel" then
+            Gamestate = "play"
+            loadNextLevel()
         end
     end
 end
@@ -309,7 +338,11 @@ function spawnEnemies(num)
             enemy = dir == -1 and Pez(rnd_x_pos, math.random(WINDOW_HEIGHT)) -- generate at left or right of screen
                               or  Pez(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
         end
-        
+
+        -- Increase Enemy Damage and speed based on Level
+        enemy:setDamage(enemy:getDamage() * Level)
+        enemy:setSpeed(enemy:getSpeed() + 0.1)
+
         -- add to enemy list
         table.insert(listOfEnemies, #listOfEnemies + 1, enemy)
     end
@@ -403,6 +436,7 @@ function drawHUD()
     love.graphics.rectangle('fill', 0,0, love.graphics.getWidth(), HUD_HEIGHT)
     drawHealthBar(player_tank:getHealth())
     printScore()
+    displayLevel()
 end
 
 --[[
@@ -418,4 +452,33 @@ function printScore()
         150,   --- limit
         'left' --- align
     )
+end
+
+function displayLevel()
+    love.graphics.setColor(1,1,1)
+    love.graphics.printf(
+        'Level ' .. tostring(Level),
+        MED_FONT,
+        600,   --- x coordinate
+        5,    --- y coordinate
+        150,   --- limit
+        'left' --- align
+    )
+end
+
+function drawBackground()
+        -- very important!: reset color before drawing to canvas to have colors properly displayed
+        -- see discussion here: https://love2d.org/forums/viewtopic.php?f=4&p=211418#p211418
+        love.graphics.setColor(1, 1, 1, 1)
+
+        -- Use the premultiplied alpha blend mode when drawing the Canvas itself to prevent improper blending.
+        love.graphics.setBlendMode("alpha")
+        love.graphics.draw(ground_canvas)
+end
+
+function loadNextLevel()
+    Level = Level + 1
+    Enemy_Count = Enemy_Count + 50
+    listOfMissiles = {}   ---------- reset the list of missiles
+    spawnEnemies(Enemy_Count)
 end
