@@ -19,5 +19,5 @@ function Gantasmito:new(x, y)
     self.y = y
 
     self.sprite = love.graphics.newImage('img/Enemy/Gantasmito.png')
-    self.speed = 8
+    self.speed = 14
 end

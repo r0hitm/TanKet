@@ -19,5 +19,5 @@ function Perro_Huevo:new(x, y)
     self.y = y
 
     self.sprite = love.graphics.newImage('img/Enemy/perro_huevo.png')
-    self.speed = 8
+    self.speed = 10
 end

@@ -31,7 +31,7 @@ function love.load()
     Object = require 'classic'
 
     require 'Tank'
-    require 'Enemy'
+    require 'EnemyList'
     require 'Missile'
 
     math.randomseed(os.time())
@@ -51,7 +51,7 @@ function love.load()
     tank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
     listOfEnemies = {}
     listOfMissiles = {}
-    spawnEnemies(50)
+    spawnEnemies(10)
 
     love.window.setTitle('TanKet')
     --[[
@@ -117,6 +117,7 @@ function love.update(dt)
 
         for i, missile in ipairs(listOfMissiles) do
             local x, y = missile:getPos()
+            -- remove the missiles if out of screen
             if x > WINDOW_WIDTH and x < WINDOW_WIDTH or
                y > WINDOW_HEIGHT and y < WINDOW_HEIGHT then
                    table.remove(listOfMissiles, i)
@@ -193,7 +194,7 @@ function love.keypressed(key)
 end
 
 function love.keyreleased(key)
-    if key == 'space' then
+    if key == 'down' then
         table.insert(listOfMissiles, #listOfMissiles + 1, Missile(tank:getTurretMouth()))
     end
 end
@@ -224,15 +225,46 @@ end
 function spawnEnemies(num)
     local i = 1
     while i <= num do
+        -- random value used to get the enemies on random 
+        local rnd = math.random()
+
+        if rnd < 0.25 then  -- call Fan350, our fastest enemey (ghost)
+            table.insert(
+                listOfEnemies,
+                #listOfEnemies + 1,
+                Fan350(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
+                math.random(WINDOW_HEIGHT)))
+
+        elseif rnd >= .25 and rnd < .50 then    -- call Gantasmito (ghost)
+            table.insert(
+                listOfEnemies,
+                #listOfEnemies + 1,
+                Gantasmito(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
+                math.random(WINDOW_HEIGHT)))
+
+        elseif rnd >= .5 and rnd < .75 then     -- call Perro_Huevo (mole)
+            table.insert(
+                listOfEnemies,
+                #listOfEnemies + 1,
+                Perro_Huevo(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
+                math.random(WINDOW_HEIGHT)))
+
+        else    -- call pez (fish)
+            table.insert(
+                listOfEnemies,
+                #listOfEnemies + 1,
+                Pez(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
+                math.random(WINDOW_HEIGHT)))
+        end
         table.insert(
             listOfEnemies,
             #listOfEnemies + 1,
-            Enemy(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
+            Perro_Huevo(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
                 math.random(WINDOW_HEIGHT)))
 
         table.insert(listOfEnemies,
             #listOfEnemies + 1,
-            Enemy(math.random(WINDOW_WIDTH),
+            Pez(math.random(WINDOW_WIDTH),
                 math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_HEIGHT, WINDOW_HEIGHT + 100)))
         i = i + 1
     end
