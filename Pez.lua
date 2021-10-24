@@ -22,5 +22,5 @@ function Pez:new(x, y)
     self.width = self.sprite:getWidth() * self.scale
     self.height = self.sprite:getHeight() * self.scale
 
-    self.speed = 12
+    self.speed = 18
 end

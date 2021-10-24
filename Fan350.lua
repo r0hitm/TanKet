@@ -22,5 +22,5 @@ function Fan350:new(x, y)
     self.width = self.sprite:getWidth() * self.scale
     self.height = self.sprite:getHeight() * self.scale
 
-    self.speed = 16
+    self.speed = 22
 end

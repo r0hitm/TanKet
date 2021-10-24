@@ -22,5 +22,5 @@ function Gantasmito:new(x, y)
     self.width = self.sprite:getWidth() * self.scale
     self.height = self.sprite:getHeight() * self.scale
 
-    self.speed = 14
+    self.speed = 20
 end
