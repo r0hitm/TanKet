@@ -44,7 +44,9 @@ function love.load()
     TITLE_FONT = love.graphics.newFont('font/market_deco.ttf', 30)
     SMALL_FONT = love.graphics.newFont('font/market_deco.ttf', 12)
 
-    explosionPNG = love.graphics.newImage('img/explosion.png')
+    EXPLOSION_PNG = love.graphics.newImage('img/explosion.png')
+    SOIL_PNG = love.graphics.newImage('img/ground/soil.jpg')
+    GRASS_PNG = love.graphics.newImage('img/ground/grass.jpg')
 
     tank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
     listOfEnemies = {}
@@ -61,6 +63,23 @@ function love.load()
         fullscreen = false,
         resizable = false
     })
+
+    --[[
+        set up the canvas for the bacground ground and grass
+    ]]
+    ground_canvas = love.graphics.newCanvas(love.graphics.getDimensions())
+
+    --- render the soil and grass tiles on the canvas using alpha blend mode
+    love.graphics.setCanvas(ground_canvas)
+        love.graphics.clear()
+        love.graphics.setBlendMode("alpha")
+        love.graphics.setColor(1,1,1,0.9)
+        for i = 0, love.graphics.getWidth() / SOIL_PNG:getWidth() do
+            for j = 0, love.graphics.getHeight() / SOIL_PNG:getHeight() do
+                love.graphics.draw(math.random() < 0.3 and GRASS_PNG or SOIL_PNG, i * SOIL_PNG:getWidth(), j * SOIL_PNG:getHeight())
+            end
+        end
+    love.graphics.setCanvas()
 
     --[[
         Gamestate is one of:
@@ -113,8 +132,6 @@ function love.update(dt)
 end
 
 function love.draw()
-    displayFPS()
-
     if Gamestate == "start" then
         --[[
             print a big welcome message onto the screen,
@@ -131,7 +148,15 @@ function love.draw()
         )
 
     elseif Gamestate == "play" then
-        love.graphics.setBackgroundColor(0.5, 0.5, 0.15)
+        -- very important!: reset color before drawing to canvas to have colors properly displayed
+        -- see discussion here: https://love2d.org/forums/viewtopic.php?f=4&p=211418#p211418
+        love.graphics.setColor(1, 1, 1, 1)
+
+        -- Use the premultiplied alpha blend mode when drawing the Canvas itself to prevent improper blending.
+        love.graphics.setBlendMode("alpha")
+        love.graphics.draw(ground_canvas)
+        
+        ---
         tank:render()
 
         for _, enemy in ipairs(listOfEnemies) do
@@ -152,6 +177,7 @@ function love.draw()
             end
         end
     end
+    displayFPS()
 end
 
 
@@ -228,5 +254,5 @@ end
 ]]
 function renderExplosionAt(x, y)
     love.graphics.setColor(1,1,1,1)
-    love.graphics.draw(explosionPNG, x, y, 0, 0.3, 0.3, explosionPNG:getWidth() / 2, explosionPNG:getHeight() / 2)
+    love.graphics.draw(EXPLOSION_PNG, x, y, 0, 0.3, 0.3, EXPLOSION_PNG:getWidth() / 2, EXPLOSION_PNG:getHeight() / 2)
 end
