@@ -30,6 +30,7 @@ function love.load()
     ]]
     Object = require 'classic'
 
+    require 'Body'
     require 'Tank'
     require 'EnemyList'
     require 'Missile'
@@ -127,7 +128,7 @@ function love.update(dt)
         end
 
         for _, enemy in ipairs(listOfEnemies) do
-            enemy:approach(dt, tank:getPos())
+            enemy:moveTowards(dt, tank:getPos())
         end
     end
 end
@@ -168,9 +169,7 @@ function love.draw()
             missile:render()
 
             for j, enemy in ipairs(listOfEnemies) do
-                local x1, y1 = missile:getPos()
-                local x2, y2 = enemy:getPos()
-                if areColliding(x1, y1, x2, y2) then
+                if areCollidingWith(enemy, missile) then
                     renderExplosionAt(missile:getPos())
                     table.remove(listOfEnemies, j)
                     table.remove(listOfMissiles, i)
@@ -204,69 +203,38 @@ function love.quit()
 end
 
 --[[
-    Number Number Number Number -> Boolean
-    produce true if the given objects, passed as two pairs of numbers, are colliding
-]]
-function areColliding(x1, y1, x2, y2)
-    local HIT_RANGE = 20 * math.sqrt(2) / 2
-    local hit_radius = math.sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2))
-
-    if hit_radius <= HIT_RANGE then
-        return true
-    else
-        return false
-    end
-
-end
-
---[[
     Randomly spawn 4 enemies off the screen
 ]]
 function spawnEnemies(num)
-    local i = 1
-    while i <= num do
+    for i = 1, num do
         -- random value used to get the enemies on random 
         local rnd = math.random()
+        local dir = math.random(-1,1)   -- use for generating on horizontal regions (-1) or vertical (1)
+        local enemy = nil
 
-        if rnd < 0.25 then  -- call Fan350, our fastest enemey (ghost)
-            table.insert(
-                listOfEnemies,
-                #listOfEnemies + 1,
-                Fan350(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
-                math.random(WINDOW_HEIGHT)))
+        -- off-screen 50 px region is used for enemy spawn
+        local rnd_x_pos = math.random() < .5 and math.random(-50, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 50)
+        local rnd_y_pos = math.random() < .5 and math.random(-50, 0) or math.random(WINDOW_HEIGHT, WINDOW_HEIGHT + 50)
+
+        if rnd < .25 then  -- call Fan350, our fastest enemey (ghost)
+            enemy = dir == -1 and Fan350(rnd_x_pos, math.random(WINDOW_HEIGHT)) -- generate at left or right of screen
+                              or  Fan350(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
 
         elseif rnd >= .25 and rnd < .50 then    -- call Gantasmito (ghost)
-            table.insert(
-                listOfEnemies,
-                #listOfEnemies + 1,
-                Gantasmito(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
-                math.random(WINDOW_HEIGHT)))
+            enemy = dir == -1 and Gantasmito(rnd_x_pos, math.random(WINDOW_HEIGHT)) -- generate at left or right of screen
+                              or  Gantasmito(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
 
         elseif rnd >= .5 and rnd < .75 then     -- call Perro_Huevo (mole)
-            table.insert(
-                listOfEnemies,
-                #listOfEnemies + 1,
-                Perro_Huevo(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
-                math.random(WINDOW_HEIGHT)))
+            enemy = dir == -1 and Perro_Huevo(rnd_x_pos, math.random(WINDOW_HEIGHT)) -- generate at left or right of screen
+                              or  Perro_Huevo(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
 
-        else    -- call pez (fish)
-            table.insert(
-                listOfEnemies,
-                #listOfEnemies + 1,
-                Pez(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
-                math.random(WINDOW_HEIGHT)))
+        else    -- call Pez (fish)
+            enemy = dir == -1 and Pez(rnd_x_pos, math.random(WINDOW_HEIGHT)) -- generate at left or right of screen
+                              or  Pez(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
         end
-        table.insert(
-            listOfEnemies,
-            #listOfEnemies + 1,
-            Perro_Huevo(math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 100),
-                math.random(WINDOW_HEIGHT)))
-
-        table.insert(listOfEnemies,
-            #listOfEnemies + 1,
-            Pez(math.random(WINDOW_WIDTH),
-                math.random() < .5 and math.random(-100, 0) or math.random(WINDOW_HEIGHT, WINDOW_HEIGHT + 100)))
-        i = i + 1
+        
+        -- add to enemy list
+        table.insert(listOfEnemies, #listOfEnemies + 1, enemy)
     end
 end
 
@@ -287,4 +255,50 @@ end
 function renderExplosionAt(x, y)
     love.graphics.setColor(1,1,1,1)
     love.graphics.draw(EXPLOSION_PNG, x, y, 0, 0.3, 0.3, EXPLOSION_PNG:getWidth() / 2, EXPLOSION_PNG:getHeight() / 2)
+end
+
+--[[
+    Body Body -> Boolean
+    produce true if the two given Body objects are colliding
+
+    note: invalid input also produces Boolean false
+]]
+function areCollidingWith(body1, body2)
+    if not body2:is(Body) and body1:is(Body) then return false end     -- handle invalid Object
+
+    local x1, y1 = body1:getPos()
+    local w1, h1 = body2:getDimensions()
+
+    local x2, y2 = body2:getPos()
+    local w2, h2 = body2:getDimensions()
+
+    -- using AABB collision detection technique
+
+    --- collision around bottom right corner
+    if x2 >= w1 + x1 and
+       y2 >= h1 + y1 then
+        return true
+    end
+
+    -- collision around top right corner
+    if x2 + w2 >= w1 + x1 and
+       y2 + h2 <= y1 then
+        return true
+    end
+
+    -- collision around top left corner
+    if x2 + w2 <= x1 and
+       y2 + h2 <= y1 then
+        return true
+    end
+
+    -- collision around bottom left corner
+    if x2 + w2 <= x1 and
+       y2 >= y1 + h1 then
+        return true
+    end
+
+    -- None of above cases match,
+    -- bodies are not colliding
+    return false
 end
