@@ -33,6 +33,15 @@ function Body:new(x, y)
     self.speed = SPEED
 end
 
+--- getters and setters for speed
+function Body:setSpeed(s)
+    self.speed = s or self.speed    -- doesn't change the speed if s == nil
+end
+
+function Body:getSpeed()
+    return self.speed
+end
+
 --[[
     get the current position of the Body
 ]]
