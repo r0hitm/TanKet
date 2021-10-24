@@ -15,8 +15,18 @@ Enemy = Body:extend()
 
 function Enemy:new(x, y)
     Enemy.super.new(self, x, y)
-    self.speed = 10   -- override default speed for Enemy
+    self.speed = 16   -- override default speed for Enemy
     self.scale = .2
+    
+    self.damage = 0.1   -- damage given to player
+end
+
+function Enemy:getDamage()
+    return self.damage
+end
+
+function Enemy:setDamage(d)
+    self.damage = d or 0.1
 end
 
 --[[
