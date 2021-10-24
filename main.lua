@@ -43,11 +43,14 @@ function love.load()
     WINDOW_HEIGHT = 720
 
     TITLE_FONT = love.graphics.newFont('font/market_deco.ttf', 30)
+    MED_FONT   = love.graphics.newFont('font/market_deco.ttf', 16)
     SMALL_FONT = love.graphics.newFont('font/market_deco.ttf', 12)
 
     EXPLOSION_PNG = love.graphics.newImage('img/explosion.png')
     SOIL_PNG = love.graphics.newImage('img/ground/soil.jpg')
     GRASS_PNG = love.graphics.newImage('img/ground/grass.jpg')
+
+    HUD_HEIGHT = love.graphics.getHeight() *  0.05
 
     --[[
         Using glow effect from moonshine.
@@ -60,6 +63,8 @@ function love.load()
     }
 
     player_tank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+    player_score = 0
+
     listOfEnemies = {}
     listOfMissiles = {}
     spawnEnemies(50)
@@ -185,11 +190,12 @@ function love.draw()
                     renderExplosionAt(missile:getPos())
                     table.remove(listOfEnemies, j)
                     table.remove(listOfMissiles, i)
+                    player_score = player_score + 1
                 end
             end
         end
+        drawHUD()
     end
-    displayFPS()
 end
 
 
@@ -303,4 +309,50 @@ function areCollidingWith(a, b)
         --If one of these statements is false, return false.
         return false
     end
+end
+
+--[[
+    draws a health bar at the middle left corner
+]]
+function drawHealthBar(hp)
+    local total_width = 300
+
+    love.graphics.setColor(1,1,1)
+    love.graphics.printf(
+        'Health: ',
+        SMALL_FONT,
+        5,       --- x coordinate
+        10,      --- y coordinate
+        50,      --- limit
+        'left'   --- align
+    )
+    love.graphics.setColor(0,0.9,0)
+    love.graphics.rectangle('fill', 50, 10, total_width * hp / 100, HUD_HEIGHT - 20)   -- draw green rectangle
+    love.graphics.setColor(0.9,0,0)
+    love.graphics.rectangle('fill', 50 + total_width * hp / 100, 10, total_width * (100 - hp) / 100, HUD_HEIGHT - 20) -- draw green rectangle
+end
+
+--[[
+    draw heads up display
+]]
+function drawHUD()
+    love.graphics.setColor(68/255, 68/255, 68/255, .9)
+    love.graphics.rectangle('fill', 0,0, love.graphics.getWidth(), HUD_HEIGHT)
+    drawHealthBar(player_tank:getHealth())
+    printScore()
+end
+
+--[[
+    print user score
+]]
+function printScore()
+    love.graphics.setColor(1,1,1)
+    love.graphics.printf(
+        'Score: ' .. tostring(player_score),
+        MED_FONT,
+        400,   --- x coordinate
+        5,    --- y coordinate
+        150,   --- limit
+        'left' --- align
+    )
 end
