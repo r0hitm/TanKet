@@ -15,9 +15,22 @@ require 'Enemy'
 Pez = Enemy:extend()
 
 function Pez:new(x, y)
-    self.x = x
-    self.y = y
+    Pez.super.new(self, x, y)
 
     self.sprite = love.graphics.newImage('img/Enemy/pez.png')
-    self.speed = 8
+
+    self.width = self.sprite:getWidth() * self.scale
+    self.height = self.sprite:getHeight() * self.scale
+
+    self.speed = 12
 end
+
+--[[
+    Float Number Number -> nil
+    moves the enemy towards the given coordinates (x, y) by in dt
+
+    Pez follows player in sinosudial fashion
+]]
+-- function Pez:moveTowards(dt, x, y)
+    
+-- end

@@ -11,13 +11,24 @@
     Contains the menthods used by all enemies.
 ]]
 
-Enemy = Object:extend()
+Enemy = Body:extend()
+
+function Enemy:new(x, y)
+    Enemy.super.new(self, x, y)
+    self.speed = 10   -- override default speed for Enemy
+    self.scale = .2
+end
 
 --[[
     Float Number Number -> nil
     moves the enemy towards the given coordinates (x, y) by in dt
+
+    Generic def.
 ]]
-function Enemy:approach(dt, x, y)
+-- function Enemy:moveTowards(dt, x, y)
+-- end
+
+function Enemy:moveTowards(dt, x, y)
     -- move along x-axis
     if x > self.x then      -- move towards right of current position
         self.x = self.x + self.speed * dt
@@ -30,24 +41,5 @@ function Enemy:approach(dt, x, y)
         self.y = self.y + self.speed * dt
     elseif y < self.y then  -- move up from the current position
         self.y = self.y - self.speed * dt
-    end
-end
-
---[[
-    Number Number -> Boolean
-    Produce true if the current positon is same as the given x,y
-]]
-function Enemy:getPos()
-    return self.x, self.y
-end
-
---[[
-    render the enemy on the screen
-]]
-function Enemy:render()
-    -- make sure the enemy sprite exists
-    if self.sprite then
-        love.graphics.setColor(1,1,1)
-        love.graphics.draw(self.sprite, self.x, self.y, 0, .2, .2)
     end
 end

@@ -11,45 +11,23 @@
     Missile eliminates the Enemy on collision.
 ]]
 
-Missile = Object:extend()
+Missile = Body:extend()
 
--- missile Speed
-local SPEED = 3
+function Missile:new(x, y, theta)
+    Missile.super.new(self, x, y)
+    self.angular_position = theta
+    self.speed = self.speed * 100        -- Bullet travels fastest in the game
 
-function Missile:new(x, y, angle)
-    if not x and y and angle then
-        error('Invalid Missile Object')
-    end
-
-    self.x = x
-    self.y = y
-
-    self.angle = angle  -- (in radians) travel direction
-end
-
---[[
-    Return the position
-]]
-function Missile:getPos()
-    return self.x, self.y
-end
-
---[[
-    returns the angle of the missile travel
-]]
-function Missile:getAngle()
-    return self.angle
+    self.sprite = love.graphics.newImage('img/bullet.png')
+    
+    self.width = self.sprite:getHeight() * self.scale
+    self.height = self.sprite:getWidth() * self.scale
 end
 
 --[[
     move the missile in the direction of angle
 ]]
 function Missile:update(dt)
-    self.x = self.x + SPEED * math.cos(self.angle)
-    self.y = self.y + SPEED * math.sin(self.angle)
-end
-
-function Missile:render()
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.ellipse('fill', self.x, self.y, 6, 4)
+    self.x = self.x + self.speed * math.cos(self.angular_position) * dt
+    self.y = self.y + self.speed * math.sin(self.angular_position) * dt
 end

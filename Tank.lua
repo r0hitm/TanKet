@@ -10,22 +10,25 @@
     Represents the Tank the Player controls.
 ]]
 
-Tank = Object:extend()
+Tank = Body:extend()
+
 
 -- constructor
 function Tank:new(x, y)
-  -- position of the Tank
-  self.x = x or 0
-  self.y = y or 0
-  self.turretAngle = 0    -- relative to bodyAngle
-  self.bodyAngle = 0
+  Tank.super.new(self, x, y)
+  -- self.angular_position is Tank's body orientation
+  self.turretAngle = 0    -- relative to angular_position
 
   self.health = 100
-  self.speed = 3
 
   -- the drawable for the tank
   self.turret = love.graphics.newImage('img/Tank/turret.png')
   self.body = love.graphics.newImage('img/Tank/body.png')
+  
+  self.scale = .8 -- scaling factor for Tank sprites
+
+  self.width = self.body:getWidth() * self.scale
+  self.height = self.body:getHeight() * self.scale
 end
 
 --[[
@@ -39,10 +42,10 @@ end
   Returns the position of turret mouth, and it's turretAngle
 ]]
 function Tank:getTurretMouth()
-  local turret_length = 48 * .8
-  return self.x + turret_length * math.cos(self.turretAngle + self.bodyAngle),
-         self.y + turret_length * math.sin(self.turretAngle + self.bodyAngle),
-         self.bodyAngle + self.turretAngle
+  local turret_length = 48 * self.scale
+  return self.x + turret_length * math.cos(self.turretAngle + self.angular_position),
+         self.y + turret_length * math.sin(self.turretAngle + self.angular_position),
+         self.angular_position + self.turretAngle
 end
 
 -- turn the Tank in anti-clockwise direction
@@ -59,21 +62,21 @@ end
   Tank movement controllers
 ]]
 function Tank:moveForward(dt)
-  self.x = self.x + self.speed * math.cos(self.bodyAngle)
-  self.y = self.y + self.speed * math.sin(self.bodyAngle)
+  self.x = self.x + self.speed * math.cos(self.angular_position)
+  self.y = self.y + self.speed * math.sin(self.angular_position)
 end
 
 function Tank:moveBackward(dt)
-  self.x = self.x - self.speed * math.cos(self.bodyAngle)
-  self.y = self.y - self.speed * math.sin(self.bodyAngle)
+  self.x = self.x - self.speed * math.cos(self.angular_position)
+  self.y = self.y - self.speed * math.sin(self.angular_position)
 end
 
 function Tank:turnLeft(dt)
-  self.bodyAngle = self.bodyAngle - self.body:getWidth() * math.pi * dt / 360 -- taking image-width /2 as the turning radius
+  self.angular_position = self.angular_position - self.body:getWidth() * math.pi * dt / 360 -- taking image-width /2 as the turning radius
 end
 
 function Tank:turnRight(dt)
-  self.bodyAngle = self.bodyAngle + self.body:getWidth() * math.pi * dt / 360
+  self.angular_position = self.angular_position + self.body:getWidth() * math.pi * dt / 360
 end
 
 -- draw the tank onto the screen
@@ -81,6 +84,6 @@ function Tank:render()
   local turret_width, turret_height = self.turret:getDimensions()
   local body_width, body_height = self.body:getDimensions()
 
-  love.graphics.draw(self.body, self.x, self.y, self.bodyAngle, .8, .8, body_width / 2, body_height / 2)
-  love.graphics.draw(self.turret, self.x, self.y, self.bodyAngle + self.turretAngle, .8, .8, turret_width / 2, turret_height / 2)
+  love.graphics.draw(self.body, self.x, self.y, self.angular_position, self.scale, self.scale, body_width / 2, body_height / 2)
+  love.graphics.draw(self.turret, self.x, self.y, self.angular_position + self.turretAngle, self.scale, self.scale, turret_width / 2, turret_height / 2)
 end

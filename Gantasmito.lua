@@ -15,9 +15,12 @@ require 'Enemy'
 Gantasmito = Enemy:extend()
 
 function Gantasmito:new(x, y)
-    self.x = x
-    self.y = y
+    Gantasmito.super.new(self, x, y)
 
     self.sprite = love.graphics.newImage('img/Enemy/Gantasmito.png')
+
+    self.width = self.sprite:getWidth() * self.scale
+    self.height = self.sprite:getHeight() * self.scale
+
     self.speed = 14
 end
