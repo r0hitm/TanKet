@@ -48,10 +48,20 @@ function love.load()
     SOIL_PNG = love.graphics.newImage('img/ground/soil.jpg')
     GRASS_PNG = love.graphics.newImage('img/ground/grass.jpg')
 
-    tank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+    --[[
+        Using glow effect from moonshine.
+        https://github.com/vrld/moonshine
+    ]]
+    local moonshine = require 'moonshine'
+    ghost_effect = moonshine(WINDOW_WIDTH, WINDOW_HEIGHT, moonshine.effects.glow)
+    ghost_effect.parameters = {
+        glow = {strength = 1, min_luma = 1}
+    }
+
+    player_tank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
     listOfEnemies = {}
     listOfMissiles = {}
-    spawnEnemies(10)
+    spawnEnemies(50)
 
     love.window.setTitle('TanKet')
     --[[
@@ -102,17 +112,17 @@ function love.update(dt)
         ]]
     elseif Gamestate == "play" then
         if love.keyboard.isDown('right') then
-            tank:turnClock(dt)
+            player_tank:turnClock(dt)
         elseif love.keyboard.isDown('left') then
-            tank:turnAntiClock(dt)
+            player_tank:turnAntiClock(dt)
         elseif love.keyboard.isDown('w') then
-            tank:moveForward(dt)
+            player_tank:moveForward(dt)
         elseif love.keyboard.isDown('s') then
-            tank:moveBackward(dt)
+            player_tank:moveBackward(dt)
         elseif love.keyboard.isDown('a') then
-            tank:turnLeft(dt)
+            player_tank:turnLeft(dt)
         elseif love.keyboard.isDown('d') then
-            tank:turnRight(dt)
+            player_tank:turnRight(dt)
         end
 
         for i, missile in ipairs(listOfMissiles) do
@@ -127,7 +137,7 @@ function love.update(dt)
         end
 
         for _, enemy in ipairs(listOfEnemies) do
-            enemy:approach(dt, tank:getPos())
+            enemy:approach(dt, player_tank:getPos())
         end
     end
 end
@@ -158,11 +168,13 @@ function love.draw()
         love.graphics.draw(ground_canvas)
         
         ---
-        tank:render()
+        player_tank:render()
 
-        for _, enemy in ipairs(listOfEnemies) do
-            enemy:render()
-        end
+        ghost_effect(function ()
+            for _, enemy in ipairs(listOfEnemies) do
+                enemy:render()
+            end
+        end)
 
         for i, missile in ipairs(listOfMissiles) do
             missile:render()
@@ -195,7 +207,7 @@ end
 
 function love.keyreleased(key)
     if key == 'down' then
-        table.insert(listOfMissiles, #listOfMissiles + 1, Missile(tank:getTurretMouth()))
+        table.insert(listOfMissiles, #listOfMissiles + 1, Missile(player_tank:getTurretMouth()))
     end
 end
 
