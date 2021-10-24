@@ -32,13 +32,6 @@ function Tank:new(x, y)
 end
 
 --[[
-  get Tank's body center's coordinates
-]]
-function Tank:getPos()
-  return self.x + self.body:getWidth() / 2, self.y + self.body:getWidth() / 2
-end
-
---[[
   Returns the position of turret mouth, and it's turretAngle
 ]]
 function Tank:getTurretMouth()
