@@ -42,7 +42,9 @@ function love.load()
     WINDOW_WIDTH = 1280
     WINDOW_HEIGHT = 720
 
-    TITLE_FONT = love.graphics.newFont('font/market_deco.ttf', 30)
+    EXTRA_BIG_FONT = love.graphics.newFont('font/market_deco.ttf', 48)
+    TITLE_FONT = love.graphics.newFont('font/market_deco.ttf', 32)
+    SUBTITLE_FONT = love.graphics.newFont('font/market_deco.ttf', 24)
     MED_FONT   = love.graphics.newFont('font/market_deco.ttf', 16)
     SMALL_FONT = love.graphics.newFont('font/market_deco.ttf', 12)
 
@@ -99,10 +101,9 @@ function love.load()
 
     --[[
         Gamestate is one of:
-            - "start"
-            - "play"
-        interp, two states of game, play - when game is being played
-        and, start - when the game is just started
+            - "start"       -- start screen
+            - "play"        -- game is being played
+            - "over"        -- game over
     ]]
     Gamestate = "start"
 end
@@ -218,6 +219,37 @@ function love.draw()
             end
         end
         drawHUD()
+
+    elseif Gamestate == "over" then
+        -- for now just print a simple message
+        love.graphics.printf(
+            'Game Over',
+            EXTRA_BIG_FONT,
+            0,
+            WINDOW_HEIGHT / 2 - 6,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        --print user score
+        love.graphics.printf(
+            'Your Score: ' .. player_score,
+            SUBTITLE_FONT,
+            0,
+            WINDOW_HEIGHT / 2 - 6 + 50,
+            WINDOW_WIDTH,
+            'center'
+        )
+
+        -- tell user how to reset
+        love.graphics.printf(
+            'Press Enter to return to Title screen\nPress Esc to quit',
+            MED_FONT,
+            0,
+            WINDOW_HEIGHT - 100,
+            WINDOW_WIDTH,
+            'center'
+        )
     end
 end
 
@@ -229,7 +261,11 @@ function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
     elseif key == 'enter' or key == 'return' then
-        if Gamestate == "start" then Gamestate = "play" end
+        if Gamestate == "start" then
+            Gamestate = "play"
+        elseif Gamestate == "over" then
+            Gamestate = "start"
+        end
     end
 end
 
@@ -339,8 +375,9 @@ end
 ]]
 function drawHealthBar(hp)
     local total_width = 300
-    local green_width = math.floor(total_width * hp / 1000)
-    local red_width = math.floor(total_width * (1000 - hp) / 1000)
+    local max_hp = 1000
+    local green_width = math.floor(total_width * hp / max_hp)
+    local red_width = math.floor(total_width * (max_hp - hp) / max_hp)
 
     love.graphics.setColor(1,1,1)
     love.graphics.printf(
@@ -352,6 +389,7 @@ function drawHealthBar(hp)
         'left'   --- align
     )
     love.graphics.setColor(0,0.9,0)
+    ------------------------- x-offset of 50 px
     love.graphics.rectangle('fill', 50, 10, green_width, HUD_HEIGHT - 20)                                  -- draw green rectangle
     love.graphics.setColor(0.9,0,0)
     love.graphics.rectangle('fill', 50 + green_width, 10, red_width, HUD_HEIGHT - 20) -- draw green rectangle
