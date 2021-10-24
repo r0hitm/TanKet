@@ -19,7 +19,7 @@ function Tank:new(x, y)
   -- self.angular_position is Tank's body orientation
   self.turretAngle = 0    -- relative to angular_position
 
-  self.health = 100
+  self.health = 1000
 
   -- the drawable for the tank
   self.turret = love.graphics.newImage('img/Tank/turret.png')
@@ -29,6 +29,19 @@ function Tank:new(x, y)
 
   self.width = self.body:getWidth() * self.scale
   self.height = self.body:getHeight() * self.scale
+end
+
+function Tank:getHealth()
+  return self.health
+end
+
+--[[
+  Fraction[0...1] -> Nothing
+  Decreases the health of tank by given number (default by 1)
+]]
+function Tank:inflictDamage(dmg)
+  self.health = self.health - (dmg or 0.1)
+  if self.health < 0 then self.health = 0 end
 end
 
 --[[

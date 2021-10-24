@@ -131,6 +131,10 @@ function love.update(dt)
             player_tank:turnRight(dt)
         end
 
+        --[[
+            update the missile positions
+            and remove the ones that go off-screen
+        ]]
         for i, missile in ipairs(listOfMissiles) do
             local x, y = missile:getPos()
             -- remove the missiles if out of screen
@@ -142,7 +146,21 @@ function love.update(dt)
             end
         end
 
+        --[[
+            update the enemy position
+        ]]
         for _, enemy in ipairs(listOfEnemies) do
+            --[[
+                enemy is colliding with player and inflicts damage to the player
+            ]]
+            if areCollidingWith(enemy, player_tank) then
+                player_tank:inflictDamage()
+                
+                -- is player dead?
+                if player_tank:getHealth() == 0 then    -- yes
+                    Gamestate = 'over'
+                end
+            end
             enemy:moveTowards(dt, player_tank:getPos())
         end
     end
@@ -176,12 +194,17 @@ function love.draw()
         ---
         player_tank:render()
 
+        ----- render the enemies with the ghost effect glow
         ghost_effect(function ()
             for _, enemy in ipairs(listOfEnemies) do
                 enemy:render()
             end
         end)
 
+        ----- following loop does three things:
+        -- renders missile
+        -- renders bullet
+        -- removes colliding missile and enemy, and increment the score
         for i, missile in ipairs(listOfMissiles) do
             missile:render()
 
@@ -316,6 +339,8 @@ end
 ]]
 function drawHealthBar(hp)
     local total_width = 300
+    local green_width = math.floor(total_width * hp / 1000)
+    local red_width = math.floor(total_width * (1000 - hp) / 1000)
 
     love.graphics.setColor(1,1,1)
     love.graphics.printf(
@@ -327,9 +352,9 @@ function drawHealthBar(hp)
         'left'   --- align
     )
     love.graphics.setColor(0,0.9,0)
-    love.graphics.rectangle('fill', 50, 10, total_width * hp / 100, HUD_HEIGHT - 20)   -- draw green rectangle
+    love.graphics.rectangle('fill', 50, 10, green_width, HUD_HEIGHT - 20)                                  -- draw green rectangle
     love.graphics.setColor(0.9,0,0)
-    love.graphics.rectangle('fill', 50 + total_width * hp / 100, 10, total_width * (100 - hp) / 100, HUD_HEIGHT - 20) -- draw green rectangle
+    love.graphics.rectangle('fill', 50 + green_width, 10, red_width, HUD_HEIGHT - 20) -- draw green rectangle
 end
 
 --[[
