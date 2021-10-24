@@ -52,7 +52,7 @@ function love.load()
     tank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
     listOfEnemies = {}
     listOfMissiles = {}
-    spawnEnemies(10)
+    spawnEnemies(50)
 
     love.window.setTitle('TanKet')
     --[[
@@ -260,45 +260,35 @@ end
 --[[
     Body Body -> Boolean
     produce true if the two given Body objects are colliding
+    -- using AABB collision detection technique --
 
     note: invalid input also produces Boolean false
 ]]
-function areCollidingWith(body1, body2)
-    if not body2:is(Body) and body1:is(Body) then return false end     -- handle invalid Object
+function areCollidingWith(a, b)
+    if not a:is(Body) and b:is(Body) then return false end     -- handle invalid Object
 
-    local x1, y1 = body1:getPos()
-    local w1, h1 = body2:getDimensions()
+    local a_left, a_top = a:getPos()
+    local a_right, a_bottom = a:getDimensions()
+    a_right = a_right + a_left  -- correct the position of right edge, from getDimensions()
+    a_bottom = a_bottom + a_top -- similarly for top edge
 
-    local x2, y2 = body2:getPos()
-    local w2, h2 = body2:getDimensions()
+    local b_left, b_top = b:getPos()
+    local b_right, b_bottom = b:getDimensions()
+    b_right = b_right + b_left  -- correct the position of right edge, from getDimensions()
+    b_bottom = b_bottom + b_top -- similarly for top edge
 
-    -- using AABB collision detection technique
-
-    --- collision around bottom right corner
-    if x2 >= w1 + x1 and
-       y2 >= h1 + y1 then
+    --If Red's right side is further to the right than Blue's left side.
+    if  a_right > b_left
+    --and Red's left side is further to the left than Blue's right side.
+    and a_left < b_right
+    --and Red's bottom side is further to the bottom than Blue's top side.
+    and a_bottom > b_top
+    --and Red's top side is further to the top than Blue's bottom side then..
+    and a_top < b_bottom then
+        --There is collision!
         return true
+    else
+        --If one of these statements is false, return false.
+        return false
     end
-
-    -- collision around top right corner
-    if x2 + w2 >= w1 + x1 and
-       y2 + h2 <= y1 then
-        return true
-    end
-
-    -- collision around top left corner
-    if x2 + w2 <= x1 and
-       y2 + h2 <= y1 then
-        return true
-    end
-
-    -- collision around bottom left corner
-    if x2 + w2 <= x1 and
-       y2 >= y1 + h1 then
-        return true
-    end
-
-    -- None of above cases match,
-    -- bodies are not colliding
-    return false
 end
