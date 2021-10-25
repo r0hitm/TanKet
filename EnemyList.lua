@@ -14,5 +14,5 @@ require 'Enemy'
 
 require 'Fan350'
 require 'Gantasmito'
-require 'Perro_Huevo'
-require 'Pez'
+require 'Demonio'
+require 'Oscuro'

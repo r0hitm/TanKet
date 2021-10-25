@@ -3,21 +3,24 @@
     - A very minimal Tank Defense Survival Game.
     - Player has to survive as long as possible from a hoard of attackers.
 
-    --- Perro_Huevo inherited from Enemy Class ---
+    --- OCA inherited from Enemy Class ---
 
     Author: Rohit Mehta
 
-    Represents the mole enemy in the game, named Perro Huevo
+    Represents the Ocuro Con Aplo enemy in the game
 ]]
 
 require 'Enemy'
 
-Perro_Huevo = Enemy:extend()
+Oscuro = Enemy:extend()
 
-function Perro_Huevo:new(x, y)
-    Perro_Huevo.super.new(self, x, y)
-    self.sprite = love.graphics.newImage('img/Enemy/perro_huevo.png')
-    
+function Oscuro:new(x, y)
+    Oscuro.super.new(self, x, y)
+
+    self.sprite = love.graphics.newImage('assets/characters/oscuro_con_aplo.png')
+
     self.width = self.sprite:getWidth() * self.scale
     self.height = self.sprite:getHeight() * self.scale
+
+    self.speed = 18
 end

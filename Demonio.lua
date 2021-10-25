@@ -3,24 +3,21 @@
     - A very minimal Tank Defense Survival Game.
     - Player has to survive as long as possible from a hoard of attackers.
 
-    --- Pez inherited from Enemy Class ---
+    --- Demonio inherited from Enemy Class ---
 
     Author: Rohit Mehta
 
-    Represents the fish enemy in the game, named Pez
+    Represents the demon in the game, named Perro Huevo
 ]]
 
 require 'Enemy'
 
-Pez = Enemy:extend()
+Demonio = Enemy:extend()
 
-function Pez:new(x, y)
-    Pez.super.new(self, x, y)
-
-    self.sprite = love.graphics.newImage('img/Enemy/pez.png')
-
+function Demonio:new(x, y)
+    Demonio.super.new(self, x, y)
+    self.sprite = love.graphics.newImage('assets/characters/demonio.png')
+    
     self.width = self.sprite:getWidth() * self.scale
     self.height = self.sprite:getHeight() * self.scale
-
-    self.speed = 18
 end
