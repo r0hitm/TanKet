@@ -116,6 +116,28 @@ function love.load()
 end
 
 --[[
+    Handle Player movements: using wasd keys for movement control
+]]
+function player_movement(dt)
+    if love.keyboard.isDown('w') then
+        player_tank:moveForward(dt)
+    elseif love.keyboard.isDown('s') then
+        player_tank:moveBackward(dt)
+    elseif love.keyboard.isDown('a') then
+        player_tank:turnLeft(dt)
+    elseif love.keyboard.isDown('d') then
+        player_tank:turnRight(dt)
+    end
+
+    --- Is turrent rotate?
+    if love.keyboard.isDown('right') then
+        player_tank:turnClock(dt)
+    elseif love.keyboard.isDown('left') then
+        player_tank:turnAntiClock(dt)
+    end
+end
+
+--[[
     Update the state while game is in the "play" state
 ]]
 function love.update(dt)
@@ -125,19 +147,7 @@ function love.update(dt)
             And make the "start" screen little interactive by adding animation
         ]]
     elseif Gamestate == "play" then
-        if love.keyboard.isDown('right') then
-            player_tank:turnClock(dt)
-        elseif love.keyboard.isDown('left') then
-            player_tank:turnAntiClock(dt)
-        elseif love.keyboard.isDown('w') then
-            player_tank:moveForward(dt)
-        elseif love.keyboard.isDown('s') then
-            player_tank:moveBackward(dt)
-        elseif love.keyboard.isDown('a') then
-            player_tank:turnLeft(dt)
-        elseif love.keyboard.isDown('d') then
-            player_tank:turnRight(dt)
-        end
+        player_movement(dt)
 
         --[[
             update the missile positions
@@ -299,8 +309,16 @@ function love.keypressed(key)
 end
 
 function love.keyreleased(key)
-    if key == 'down' then
-        table.insert(listOfMissiles, #listOfMissiles + 1, Missile(player_tank:getTurretMouth()))
+    local dt = love.timer.getDelta()
+
+    if Gamestate == "play" then
+        --[[
+            shoot control is here so as to prevent player
+            from holding down 'space' and continuously relase missile stream.
+        ]]
+        if key == 'space' then  --- shoot the missile
+            table.insert(listOfMissiles, #listOfMissiles + 1, Missile(player_tank:getTurretMouth()))
+        end
     end
 end
 
