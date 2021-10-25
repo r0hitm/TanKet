@@ -59,16 +59,10 @@ function love.load()
         https://github.com/vrld/moonshine
     ]]
     local moonshine = require 'moonshine'
-    ghost_effect = moonshine(WINDOW_WIDTH, WINDOW_HEIGHT, moonshine.effects.glow)
-    ghost_effect.parameters = {
+    GhostEffect = moonshine(WINDOW_WIDTH, WINDOW_HEIGHT, moonshine.effects.glow)
+    GhostEffect.parameters = {
         glow = {strength = 1, min_luma = 1}
     }
-
-    player_tank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
-    player_score = 0
-
-    listOfEnemies = {}
-    listOfMissiles = {}
 
     love.window.setTitle('TanKet')
     --[[
@@ -98,6 +92,9 @@ function love.load()
         end
     love.graphics.setCanvas()
 
+    ----------------------------------------------------------------
+    -- Important Game Variables
+    ----------------------------------------------------------------
     --[[
         Gamestate is one of:
             - "start"       -- start screen
@@ -107,11 +104,15 @@ function love.load()
     ]]
     Gamestate = "start"
 
-    --[[
-        Level are endless with increasing enemy count and damage-delt
-    ]]
     Level = 1
     Enemy_Count = 50
+
+    PlayerTank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+    PlayerScore = 0
+
+    ListOfEnemies = {}
+    ListOfMissiles = {}
+
     spawnEnemies(Enemy_Count)
 end
 
@@ -120,20 +121,20 @@ end
 ]]
 function player_movement(dt)
     if love.keyboard.isDown('w') then
-        player_tank:moveForward(dt)
+        PlayerTank:moveForward(dt)
     elseif love.keyboard.isDown('s') then
-        player_tank:moveBackward(dt)
+        PlayerTank:moveBackward(dt)
     elseif love.keyboard.isDown('a') then
-        player_tank:turnLeft(dt)
+        PlayerTank:turnLeft(dt)
     elseif love.keyboard.isDown('d') then
-        player_tank:turnRight(dt)
+        PlayerTank:turnRight(dt)
     end
 
     --- Is turrent rotate?
     if love.keyboard.isDown('right') then
-        player_tank:turnClock(dt)
+        PlayerTank:turnClock(dt)
     elseif love.keyboard.isDown('left') then
-        player_tank:turnAntiClock(dt)
+        PlayerTank:turnAntiClock(dt)
     end
 end
 
@@ -153,12 +154,12 @@ function love.update(dt)
             update the missile positions
             and remove the ones that go off-screen
         ]]
-        for i, missile in ipairs(listOfMissiles) do
+        for i, missile in ipairs(ListOfMissiles) do
             local x, y = missile:getPos()
             -- remove the missiles if out of screen
             if x > WINDOW_WIDTH and x < WINDOW_WIDTH or
                y > WINDOW_HEIGHT and y < WINDOW_HEIGHT then
-                   table.remove(listOfMissiles, i)
+                   table.remove(ListOfMissiles, i)
             else
                 missile:update(dt)
             end
@@ -167,23 +168,23 @@ function love.update(dt)
         --[[
             update the enemy position
         ]]
-        for _, enemy in ipairs(listOfEnemies) do
+        for _, enemy in ipairs(ListOfEnemies) do
             --[[
                 enemy is colliding with player and inflicts damage to the player
             ]]
-            if areCollidingWith(enemy, player_tank) then
-                player_tank:inflictDamage(enemy:getDamage())
+            if areCollidingWith(enemy, PlayerTank) then
+                PlayerTank:inflictDamage(enemy:getDamage())
                 
                 -- is player dead?
-                if player_tank:getHealth() == 0 then    -- yes
+                if PlayerTank:getHealth() == 0 then    -- yes
                     Gamestate = 'over'
                 end
             end
-            enemy:moveTowards(dt, player_tank:getPos())
+            enemy:moveTowards(dt, PlayerTank:getPos())
         end
 
         --- clear current level, load next level
-        if #listOfEnemies == 0 then
+        if #ListOfEnemies == 0 then
             Gamestate = "nextLevel"
         end
     end
@@ -208,11 +209,11 @@ function love.draw()
     elseif Gamestate == "play" then
         drawBackground()
         ---
-        player_tank:render()
+        PlayerTank:render()
 
         ----- render the enemies with the ghost effect glow
-        ghost_effect(function ()
-            for _, enemy in ipairs(listOfEnemies) do
+        GhostEffect(function ()
+            for _, enemy in ipairs(ListOfEnemies) do
                 enemy:render()
             end
         end)
@@ -221,15 +222,15 @@ function love.draw()
         -- renders missile
         -- renders bullet
         -- removes colliding missile and enemy, and increment the score
-        for i, missile in ipairs(listOfMissiles) do
+        for i, missile in ipairs(ListOfMissiles) do
             missile:render()
 
-            for j, enemy in ipairs(listOfEnemies) do
+            for j, enemy in ipairs(ListOfEnemies) do
                 if areCollidingWith(enemy, missile) then
                     renderExplosionAt(missile:getPos())
-                    table.remove(listOfEnemies, j)
-                    table.remove(listOfMissiles, i)
-                    player_score = player_score + 1
+                    table.remove(ListOfEnemies, j)
+                    table.remove(ListOfMissiles, i)
+                    PlayerScore = PlayerScore + 1
                 end
             end
         end
@@ -248,7 +249,7 @@ function love.draw()
 
         --print user score
         love.graphics.printf(
-            'Your Score: ' .. player_score,
+            'Your Score: ' .. PlayerScore,
             SUBTITLE_FONT,
             0,
             WINDOW_HEIGHT / 2 - 6 + 50,
@@ -299,8 +300,10 @@ function love.keypressed(key)
     elseif key == 'enter' or key == 'return' then
         if Gamestate == "start" then
             Gamestate = "play"
+
         elseif Gamestate == "over" then
-            Gamestate = "start"
+            reset()
+
         elseif Gamestate == "nextLevel" then
             Gamestate = "play"
             loadNextLevel()
@@ -317,7 +320,7 @@ function love.keyreleased(key)
             from holding down 'space' and continuously relase missile stream.
         ]]
         if key == 'space' then  --- shoot the missile
-            table.insert(listOfMissiles, #listOfMissiles + 1, Missile(player_tank:getTurretMouth()))
+            table.insert(ListOfMissiles, #ListOfMissiles + 1, Missile(PlayerTank:getTurretMouth()))
         end
     end
 end
@@ -362,7 +365,7 @@ function spawnEnemies(num)
         enemy:setSpeed(enemy:getSpeed() + 0.1)
 
         -- add to enemy list
-        table.insert(listOfEnemies, #listOfEnemies + 1, enemy)
+        table.insert(ListOfEnemies, #ListOfEnemies + 1, enemy)
     end
 end
 
@@ -452,7 +455,7 @@ end
 function drawHUD()
     love.graphics.setColor(68/255, 68/255, 68/255, .9)
     love.graphics.rectangle('fill', 0,0, love.graphics.getWidth(), HUD_HEIGHT)
-    drawHealthBar(player_tank:getHealth())
+    drawHealthBar(PlayerTank:getHealth())
     printScore()
     displayLevel()
 end
@@ -463,7 +466,7 @@ end
 function printScore()
     love.graphics.setColor(1,1,1)
     love.graphics.printf(
-        'Score: ' .. tostring(player_score),
+        'Score: ' .. tostring(PlayerScore),
         MED_FONT,
         400,   --- x coordinate
         5,    --- y coordinate
@@ -497,6 +500,24 @@ end
 function loadNextLevel()
     Level = Level + 1
     Enemy_Count = Enemy_Count + 50
-    listOfMissiles = {}   ---------- reset the list of missiles
+    ListOfMissiles = {}   ---------- reset the list of missiles
+    spawnEnemies(Enemy_Count)
+end
+
+--[[
+    Reset the Game variables to play a new game
+]]
+function reset()
+    Gamestate = "start"
+
+    Level = 1
+    Enemy_Count = 50
+
+    PlayerTank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+    PlayerScore = 0
+
+    ListOfEnemies = {}
+    ListOfMissiles = {}
+
     spawnEnemies(Enemy_Count)
 end
