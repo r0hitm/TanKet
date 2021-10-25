@@ -22,8 +22,8 @@ function Tank:new(x, y)
   self.health = 1000
 
   -- the drawable for the tank
-  self.turret = love.graphics.newImage('img/Tank/turret.png')
-  self.body = love.graphics.newImage('img/Tank/body.png')
+  self.turret = love.graphics.newImage('assets/tank/turret.png')
+  self.body = love.graphics.newImage('assets/tank/body.png')
   
   self.scale = .8 -- scaling factor for Tank sprites
 

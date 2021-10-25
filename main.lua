@@ -42,15 +42,15 @@ function love.load()
     WINDOW_WIDTH = 1280
     WINDOW_HEIGHT = 720
 
-    EXTRA_BIG_FONT = love.graphics.newFont('font/market_deco.ttf', 48)
-    TITLE_FONT = love.graphics.newFont('font/market_deco.ttf', 32)
-    SUBTITLE_FONT = love.graphics.newFont('font/market_deco.ttf', 24)
-    MED_FONT   = love.graphics.newFont('font/market_deco.ttf', 16)
-    SMALL_FONT = love.graphics.newFont('font/market_deco.ttf', 12)
+    EXTRA_BIG_FONT = love.graphics.newFont('assets/fonts/market_deco.ttf', 48)
+    TITLE_FONT = love.graphics.newFont('assets/fonts/market_deco.ttf', 32)
+    SUBTITLE_FONT = love.graphics.newFont('assets/fonts/market_deco.ttf', 24)
+    MED_FONT   = love.graphics.newFont('assets/fonts/market_deco.ttf', 16)
+    SMALL_FONT = love.graphics.newFont('assets/fonts/market_deco.ttf', 12)
 
-    EXPLOSION_PNG = love.graphics.newImage('img/explosion.png')
-    SOIL_PNG = love.graphics.newImage('img/ground/soil.jpg')
-    GRASS_PNG = love.graphics.newImage('img/ground/grass.jpg')
+    EXPLOSION_PNG = love.graphics.newImage('assets/explosion.png')
+    SOIL_PNG = love.graphics.newImage('assets/textures/soil.jpg')
+    GRASS_PNG = love.graphics.newImage('assets/textures/grass.jpg')
 
     HUD_HEIGHT = love.graphics.getHeight() *  0.05
 
@@ -331,12 +331,12 @@ function spawnEnemies(num)
                               or  Gantasmito(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
 
         elseif rnd >= .5 and rnd < .75 then     -- call Perro_Huevo (mole)
-            enemy = dir == -1 and Perro_Huevo(rnd_x_pos, math.random(WINDOW_HEIGHT)) -- generate at left or right of screen
-                              or  Perro_Huevo(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
+            enemy = dir == -1 and Demonio(rnd_x_pos, math.random(WINDOW_HEIGHT)) -- generate at left or right of screen
+                              or  Demonio(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
 
         else    -- call Pez (fish)
-            enemy = dir == -1 and Pez(rnd_x_pos, math.random(WINDOW_HEIGHT)) -- generate at left or right of screen
-                              or  Pez(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
+            enemy = dir == -1 and Oscuro(rnd_x_pos, math.random(WINDOW_HEIGHT)) -- generate at left or right of screen
+                              or  Oscuro(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
         end
 
         -- Increase Enemy Damage and speed based on Level

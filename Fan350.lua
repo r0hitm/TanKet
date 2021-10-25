@@ -17,7 +17,7 @@ Fan350 = Enemy:extend()
 function Fan350:new(x, y)
     Fan350.super.new(self, x, y)
 
-    self.sprite = love.graphics.newImage('img/Enemy/Fan350.png')
+    self.sprite = love.graphics.newImage('assets/characters/Fan350.png')
 
     self.width = self.sprite:getWidth() * self.scale
     self.height = self.sprite:getHeight() * self.scale

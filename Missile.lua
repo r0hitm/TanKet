@@ -18,7 +18,7 @@ function Missile:new(x, y, theta)
     self.angular_position = theta
     self.speed = self.speed * 100        -- Bullet travels fastest in the game
 
-    self.sprite = love.graphics.newImage('img/bullet.png')
+    self.sprite = love.graphics.newImage('assets/bullet.png')
     
     self.width = self.sprite:getHeight() * self.scale
     self.height = self.sprite:getWidth() * self.scale
