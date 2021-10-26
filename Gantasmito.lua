@@ -24,3 +24,9 @@ function Gantasmito:new(x, y)
 
     self.speed = 20
 end
+
+-- follows "upward diagonal"
+function Gantasmito:move(dt)
+    self.x = self.x + self.speed * dt
+    self.y = self.y - self.speed * dt
+end

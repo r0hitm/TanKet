@@ -24,3 +24,9 @@ function Fan350:new(x, y)
 
     self.speed = 22
 end
+
+-- follows "downward diagonal"
+function Fan350:move(dt)
+    self.x = self.x + self.speed * dt
+    self.y = self.y + self.speed * dt
+end

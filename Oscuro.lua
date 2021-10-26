@@ -14,7 +14,7 @@ require 'Enemy'
 
 Oscuro = Enemy:extend()
 
-function Oscuro:new(x, y)
+function Oscuro:new(x, y, dir_bool)
     Oscuro.super.new(self, x, y)
 
     self.sprite = love.graphics.newImage('assets/characters/oscuro_con_aplo.png')
@@ -22,5 +22,16 @@ function Oscuro:new(x, y)
     self.width = self.sprite:getWidth() * self.scale
     self.height = self.sprite:getHeight() * self.scale
 
+    self.dir_bool = dir_bool    -- true means go up else go left
+
     self.speed = 18
+end
+
+-- follows "straight line"
+function Oscuro:move(dt)
+    if self.dir_bool then
+        self.y = self.y - self.speed * dt
+    else
+        self.x = self.x - self.speed * dt
+    end
 end
