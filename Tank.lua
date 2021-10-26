@@ -20,6 +20,7 @@ function Tank:new(x, y)
   self.turretAngle = 0    -- relative to angular_position
 
   self.health = 1000
+  self.damageInflicted = false
 
   -- the drawable for the tank
   self.turret = love.graphics.newImage('assets/tank/turret.png')
@@ -42,6 +43,7 @@ end
 function Tank:inflictDamage(dmg)
   self.health = self.health - (dmg or 0.1)
   if self.health < 0 then self.health = 0 end
+  self.damageInflicted = true
 end
 
 --[[
@@ -90,6 +92,13 @@ function Tank:render()
   local turret_width, turret_height = self.turret:getDimensions()
   local body_width, body_height = self.body:getDimensions()
 
+  if self.damageInflicted then
+    love.graphics.setColor(1,0,0,0.8)
+    self.damageInflicted = false
+  end
+  
   love.graphics.draw(self.body, self.x, self.y, self.angular_position, self.scale, self.scale, body_width / 2, body_height / 2)
   love.graphics.draw(self.turret, self.x, self.y, self.angular_position + self.turretAngle, self.scale, self.scale, turret_width / 2, turret_height / 2)
+  love.graphics.setColor(1,1,1)
+  
 end
