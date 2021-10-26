@@ -123,23 +123,13 @@ function love.load()
             - "over"        -- game over
     ]]
     Gamestate = "start"
-
-    Level = 1
-    Enemy_Count = 50
-
-    PlayerTank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
-    PlayerScore = 0
-
-    ListOfEnemies = {}
-    ListOfMissiles = {}
-
-    spawnEnemies(Enemy_Count)
+    reset() -- contains all important game variables
 end
 
 --[[
     Handle Player movements: using wasd keys for movement control
 ]]
-function player_movement(dt)
+local function player_movement(dt)
     if love.keyboard.isDown('w') then
         PlayerTank:moveForward(dt)
     elseif love.keyboard.isDown('s') then
@@ -208,7 +198,7 @@ function love.update(dt)
             --[[
                 enemy is colliding with player and inflicts damage to the player
             ]]
-            if areCollidingWith(enemy, PlayerTank) then
+            if areColliding(enemy, PlayerTank) then
                 -- if SFX_HURT:isPlaying() then
                 --     SFX_HURT:stop()
                 -- end
@@ -227,7 +217,7 @@ function love.update(dt)
                     end
                 end
             end
-            enemy:moveTowards(dt, PlayerTank:getPos())
+            enemy:move(dt)
         end
 
         --- clear current level, load next level
@@ -315,7 +305,14 @@ function love.draw()
 
         ----- render the enemies with the ghost effect glow
         GhostEffect(function ()
-            for _, enemy in ipairs(ListOfEnemies) do
+            for i, enemy in ipairs(ListOfEnemies) do
+                --- remove the enemies if they reach out of screen
+                local x, y = enemy:getPos()
+                if x > WINDOW_WIDTH or x < 0 or
+                    y > WINDOW_HEIGHT or y < 0 then
+                        table.remove(ListOfEnemies, i)
+                    end
+
                 enemy:render()
             end
         end)
@@ -328,7 +325,7 @@ function love.draw()
             missile:render()
 
             for j, enemy in ipairs(ListOfEnemies) do
-                if areCollidingWith(enemy, missile) then
+                if areColliding(enemy, missile) then
                     renderExplosionAt(missile:getPos())
                     table.remove(ListOfEnemies, j)
                     table.remove(ListOfMissiles, i)
@@ -416,8 +413,6 @@ function love.keypressed(key)
 end
 
 function love.keyreleased(key)
-    local dt = love.timer.getDelta()
-
     if Gamestate == "play" then
         --[[
             shoot control is here so as to prevent player
@@ -438,42 +433,48 @@ function love.quit()
 end
 
 --[[
-    Randomly spawn 4 enemies off the screen
+    Spawn a Enemy for the current Level (gloabl variable)
 ]]
-function spawnEnemies(num)
-    for i = 1, num do
-        -- random value used to get the enemies on random 
-        local rnd = math.random()
-        local dir = math.random(-1,1)   -- use for generating on horizontal regions (-1) or vertical (1)
-        local enemy = nil
+function spawnEnemy()
+    local enemy = nil
 
-        -- off-screen 50 px region is used for enemy spawn
-        local rnd_x_pos = math.random() < .5 and math.random(-50, 0) or math.random(WINDOW_WIDTH, WINDOW_WIDTH + 50)
-        local rnd_y_pos = math.random() < .5 and math.random(-50, 0) or math.random(WINDOW_HEIGHT, WINDOW_HEIGHT + 50)
+    -- randomly choose the enemy to spawn at their respective spawn location
+    local rnd = math.random(1, 4)
+    if rnd == 1 then
+        enemy = Fan350(100, math.random(300))
 
-        if rnd < .25 then  -- call Fan350, our fastest enemey (ghost)
-            enemy = dir == -1 and Fan350(rnd_x_pos, math.random(WINDOW_HEIGHT)) -- generate at left or right of screen
-                              or  Fan350(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
+    elseif rnd == 2 then
+        enemy = Gantasmito(100, WINDOW_HEIGHT - 300)
 
-        elseif rnd >= .25 and rnd < .50 then    -- call Gantasmito (ghost)
-            enemy = dir == -1 and Gantasmito(rnd_x_pos, math.random(WINDOW_HEIGHT)) -- generate at left or right of screen
-                              or  Gantasmito(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
-
-        elseif rnd >= .5 and rnd < .75 then     -- call Perro_Huevo (mole)
-            enemy = dir == -1 and Demonio(rnd_x_pos, math.random(WINDOW_HEIGHT)) -- generate at left or right of screen
-                              or  Demonio(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
-
-        else    -- call Pez (fish)
-            enemy = dir == -1 and Oscuro(rnd_x_pos, math.random(WINDOW_HEIGHT)) -- generate at left or right of screen
-                              or  Oscuro(math.random(WINDOW_WIDTH), rnd_y_pos)  -- genertae at top or bottom of screen
+    elseif rnd == 3 then
+        if math.random() <= 0.5 then
+            enemy = Demonio(math.random(WINDOW_WIDTH - 400, WINDOW_WIDTH - 100), 100, false)
+        else
+            enemy = Demonio(math.random(100, 400), WINDOW_HEIGHT - 100, true)
         end
 
-        -- Increase Enemy Damage and speed based on Level
-        enemy:setDamage(enemy:getDamage() * Level)
-        enemy:setSpeed(enemy:getSpeed() + 0.1)
+    else
+        if math.random() <= 0.5 then
+            enemy = Oscuro(math.random(500, 800), WINDOW_HEIGHT - 100, true)
+        else
+            enemy = Oscuro(WINDOW_WIDTH - 100, math.random(WINDOW_HEIGHT / 2 - 200, WINDOW_HEIGHT / 2 + 100), false)
+        end
+    end
 
-        -- add to enemy list
-        table.insert(ListOfEnemies, #ListOfEnemies + 1, enemy)
+    -- Increase Enemy Damage and speed based on Level
+    enemy:setDamage(enemy:getDamage() * Level)
+    enemy:setSpeed(enemy:getSpeed() + 0.1)
+
+    -- add to enemy list
+    table.insert(ListOfEnemies, #ListOfEnemies + 1, enemy)
+end
+
+--[[
+    spawn multiple enemies
+]]
+local function spawnMultipleEnemies(n)
+    for i = 1, n do
+        spawnEnemy()
     end
 end
 
@@ -507,7 +508,7 @@ end
 
     note: invalid input also produces Boolean false
 ]]
-function areCollidingWith(a, b)
+function areColliding(a, b)
     if not a:is(Body) and b:is(Body) then return false end     -- handle invalid Object
 
     local a_left, a_top = a:getPos()
@@ -611,9 +612,9 @@ end
 
 function loadNextLevel()
     Level = Level + 1
-    Enemy_Count = Enemy_Count + 50
+    Enemy_Count = Enemy_Count + 5
     ListOfMissiles = {}   ---------- reset the list of missiles
-    spawnEnemies(Enemy_Count)
+    spawnMultipleEnemies(Enemy_Count)
 end
 
 --[[
@@ -623,7 +624,7 @@ function reset()
     Gamestate = "start"
 
     Level = 1
-    Enemy_Count = 50
+    Enemy_Count = 5
 
     PlayerTank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
     PlayerScore = 0
@@ -631,5 +632,5 @@ function reset()
     ListOfEnemies = {}
     ListOfMissiles = {}
 
-    spawnEnemies(Enemy_Count)
+    spawnMultipleEnemies(Enemy_Count)
 end
