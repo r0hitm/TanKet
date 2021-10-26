@@ -208,17 +208,65 @@ function love.draw()
             print a big welcome message onto the screen,
             and other messages, including lore
         ]]
-        -- for now just print a simple message
+        love.graphics.setBackgroundColor(35/255,53/255,43/255)
         love.graphics.printf(
-            'Press Enter to Start the Game',
-            TITLE_FONT,
+            'TanKet',
+            EXTRA_BIG_FONT,
+            0,          -- x position
+            100,        -- y position
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            'Press Enter to Start',
+            SUBTITLE_FONT,
             0,
-            WINDOW_HEIGHT / 2 - 6,
+            300,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            'Press Esc to Quit',
+            SUBTITLE_FONT,
+            0,
+            350,
+            WINDOW_WIDTH,
+            "center"
+        )
+
+        love.graphics.printf(
+            'Controls:',
+            MED_FONT,
+            10,
+            450,
+            WINDOW_WIDTH,
+            "left"
+        )
+
+        love.graphics.printf(
+            'w - move forward\na - turn left\ns - move backwards\nd - turn right\n'
+            .. '<- - turn turret anticlockwise\n-> - turn turret clockwise\n'
+            .. 'space - shoot missile',
+            MED_FONT,
+            20,
+            480,
+            WINDOW_WIDTH,
+            "left"
+        )
+
+        love.graphics.printf(
+            'Can you survive the ghost apocalypse?',
+            MED_FONT,
+            10,
+            450,
             WINDOW_WIDTH,
             "center"
         )
 
     elseif Gamestate == "play" then
+        love.graphics.setBackgroundColor(0,0,0)
         drawBackground()
         ---
         PlayerTank:render()
@@ -249,12 +297,12 @@ function love.draw()
         drawHUD()
 
     elseif Gamestate == "over" then
-        -- for now just print a simple message
+        love.graphics.setBackgroundColor(35/255,53/255,43/255)
         love.graphics.printf(
             'Game Over',
             EXTRA_BIG_FONT,
             0,
-            WINDOW_HEIGHT / 2 - 6,
+            WINDOW_HEIGHT * .4,
             WINDOW_WIDTH,
             "center"
         )
