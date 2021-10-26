@@ -22,3 +22,7 @@ This Project uses the assets that these awesome people provided for free
 ## assets/textures/**soil.jpg**
 - Author: https://grumpydiamond.itch.io/
 - Asset URL: https://grumpydiamond.itch.io/small-grass-tileset-16x16
+
+## assets/sfx
+- Author: https://harvey656.itch.io/
+- Asset URL: https://harvey656.itch.io/8-bit-game-sound-effects-collection

@@ -52,6 +52,14 @@ function love.load()
     SOIL_PNG = love.graphics.newImage('assets/textures/soil.jpg')
     GRASS_PNG = love.graphics.newImage('assets/textures/grass.jpg')
 
+    SFX_EXPLODE = love.audio.newSource('assets/sfx/explosion_29.wav', 'static')
+    SFX_HURT    = love.audio.newSource('assets/sfx/hurt_025.wav', 'static')
+    SFX_SHOOT   = love.audio.newSource('assets/sfx/laser_001.wav', 'static')
+
+    SFX_EXPLODE:setVolume(.4)
+    SFX_SHOOT:setVolume(.2)
+    SFX_HURT:setVolume(.3)
+
     HUD_HEIGHT = love.graphics.getHeight() *  0.05
 
     --[[
@@ -173,6 +181,10 @@ function love.update(dt)
                 enemy is colliding with player and inflicts damage to the player
             ]]
             if areCollidingWith(enemy, PlayerTank) then
+                -- if SFX_HURT:isPlaying() then
+                --     SFX_HURT:stop()
+                -- end
+                SFX_HURT:play()
                 PlayerTank:inflictDamage(enemy:getDamage())
                 
                 -- is player dead?
@@ -320,6 +332,10 @@ function love.keyreleased(key)
             from holding down 'space' and continuously relase missile stream.
         ]]
         if key == 'space' then  --- shoot the missile
+            if SFX_SHOOT:isPlaying() then
+                SFX_SHOOT:stop()
+            end
+            SFX_SHOOT:play()
             table.insert(ListOfMissiles, #ListOfMissiles + 1, Missile(PlayerTank:getTurretMouth()))
         end
     end
@@ -384,6 +400,10 @@ end
     draws the explosion image at the given coordinates
 ]]
 function renderExplosionAt(x, y)
+    if SFX_EXPLODE:isPlaying() then
+        SFX_EXPLODE:stop()
+    end
+    SFX_EXPLODE:play()
     love.graphics.setColor(1,1,1,1)
     love.graphics.draw(EXPLOSION_PNG, x, y, 0, 0.3, 0.3, EXPLOSION_PNG:getWidth() / 2, EXPLOSION_PNG:getHeight() / 2)
 end
