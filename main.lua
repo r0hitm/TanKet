@@ -60,6 +60,18 @@ function love.load()
     SFX_SHOOT:setVolume(.2)
     SFX_HURT:setVolume(.3)
 
+    MUSIC_START = love.audio.newSource('assets/music/Ludum Dare 32 - Track 1.wav', 'stream')
+    MUSIC_PLAY = love.audio.newSource('assets/music/Ludum Dare 32 - Track 4.wav', 'stream')
+    MUSIC_OVER = love.audio.newSource('assets/music/Ludum Dare 32 - Track 2.wav', 'stream')
+
+    MUSIC_START:setVolume(.4)
+    MUSIC_PLAY:setVolume(.4)
+    MUSIC_OVER:setVolume(.4)
+
+    MUSIC_START:setLooping(true)
+    MUSIC_PLAY:setLooping(true)
+    MUSIC_OVER:setLooping(true)
+
     HUD_HEIGHT = love.graphics.getHeight() *  0.05
 
     --[[
@@ -152,10 +164,26 @@ end
 function love.update(dt)
     if Gamestate == "start" then
         --[[
-            handle events that trigger the "play" state.
-            And make the "start" screen little interactive by adding animation
+            start the start streaming music
         ]]
+        if MUSIC_PLAY:isPlaying() or MUSIC_OVER:isPlaying() then
+            MUSIC_OVER:pause()
+            MUSIC_PLAY:pause()
+        end
+        if not MUSIC_START:isPlaying() then
+            MUSIC_START:play()
+        end
+
     elseif Gamestate == "play" then
+        --- stream the play music
+        if MUSIC_START:isPlaying() or MUSIC_OVER:isPlaying() then
+            MUSIC_OVER:pause()
+            MUSIC_START:pause()
+        end
+        if not MUSIC_PLAY:isPlaying() then
+            MUSIC_PLAY:play()
+        end
+
         player_movement(dt)
 
         --[[
@@ -190,6 +218,13 @@ function love.update(dt)
                 -- is player dead?
                 if PlayerTank:getHealth() == 0 then    -- yes
                     Gamestate = 'over'
+                    if MUSIC_PLAY:isPlaying() or MUSIC_START:isPlaying() then
+                        MUSIC_PLAY:pause()
+                        MUSIC_START:pause()
+                    end
+                    if not MUSIC_OVER:isPlaying() then
+                        MUSIC_OVER:play()
+                    end
                 end
             end
             enemy:moveTowards(dt, PlayerTank:getPos())
@@ -198,6 +233,13 @@ function love.update(dt)
         --- clear current level, load next level
         if #ListOfEnemies == 0 then
             Gamestate = "nextLevel"
+            if MUSIC_PLAY:isPlaying() or MUSIC_START:isPlaying() then
+                MUSIC_PLAY:pause()
+                MUSIC_START:pause()
+            end
+            if not MUSIC_OVER:isPlaying() then
+                MUSIC_OVER:play()
+            end
         end
     end
 end
@@ -297,7 +339,9 @@ function love.draw()
         drawHUD()
 
     elseif Gamestate == "over" then
-        love.graphics.setBackgroundColor(35/255,53/255,43/255)
+        love.graphics.setBackgroundColor(35/255,53/255,43/255, .8)
+        drawBackground()
+        
         love.graphics.printf(
             'Game Over',
             EXTRA_BIG_FONT,
