@@ -28,6 +28,7 @@ function love.load()
     require 'Tank'
     require 'EnemyList'
     require 'Missile'
+    require 'Projectile'
 
     math.randomseed(os.time())
 
@@ -166,20 +167,37 @@ function love.update(dt)
                 -- end
                 SFX_HURT:play()
                 PlayerTank:inflictDamage(enemy:getDamage())
-                
-                -- is player dead?
-                if PlayerTank:getHealth() == 0 then    -- yes
-                    Gamestate = 'over'
-                    if MUSIC_PLAY:isPlaying() or MUSIC_START:isPlaying() then
-                        MUSIC_PLAY:pause()
-                        MUSIC_START:pause()
-                    end
-                    if not MUSIC_OVER:isPlaying() then
-                        MUSIC_OVER:play()
-                    end
-                end
             end
             enemy:move(dt)
+        end
+
+        for i, projectile in ipairs(ListOfProjectiles) do
+            local x, y = projectile:getPos()
+            -- remove the projectiles if out of screen
+            if x > WINDOW_WIDTH and x < WINDOW_WIDTH or
+               y > WINDOW_HEIGHT and y < WINDOW_HEIGHT then
+                   table.remove(ListOfProjectiles, i)
+
+            elseif areColliding(projectile, PlayerTank) then
+                SFX_HURT:play()
+                PlayerTank:inflictDamage(projectile:getDamage())
+                table.remove(ListOfProjectiles, i)
+
+            else
+                projectile:update(dt)
+            end
+        end
+
+        -- is player dead?
+        if PlayerTank:getHealth() == 0 then    -- yes
+            Gamestate = 'over'
+            if MUSIC_PLAY:isPlaying() or MUSIC_START:isPlaying() then
+                MUSIC_PLAY:pause()
+                MUSIC_START:pause()
+            end
+            if not MUSIC_OVER:isPlaying() then
+                MUSIC_OVER:play()
+            end
         end
 
         --- clear current level, load next level
@@ -292,12 +310,18 @@ function love.draw()
                 end
             end
         end
+
+        -- render all the projectiles onto the screen
+        for _, projectile in ipairs(ListOfProjectiles) do
+            projectile:render()
+        end
+
         drawHUD()
 
     elseif Gamestate == "over" then
         love.graphics.setBackgroundColor(35/255,53/255,43/255, .8)
         drawBackground()
-        
+
         love.graphics.printf(
             'Game Over',
             EXTRA_BIG_FONT,

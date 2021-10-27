@@ -229,6 +229,7 @@ function reset()
 
     ListOfEnemies = {}
     ListOfMissiles = {}
+    ListOfProjectiles = {}
 
     spawnMultipleEnemies(Enemy_Count)
 end
