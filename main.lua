@@ -173,6 +173,7 @@ function love.update(dt)
             if love.math.random(0,500) == 1  then
                 local projectile = Projectile(enemy:getPos())
                 projectile:setDirection(PlayerTank:getPos())
+                projectile:setDamage(projectile:getDamage() * Level) -- increase damage with each level
                 table.insert(ListOfProjectiles, #ListOfProjectiles + 1, projectile)
             end
 
@@ -196,20 +197,18 @@ function love.update(dt)
             end
         end
 
-        -- is player dead?
-        if PlayerTank:getHealth() == 0 then    -- yes
-            Gamestate = 'over'
-            if MUSIC_PLAY:isPlaying() or MUSIC_START:isPlaying() then
-                MUSIC_PLAY:pause()
-                MUSIC_START:pause()
-            end
-            if not MUSIC_OVER:isPlaying() then
-                MUSIC_OVER:play()
-            end
+        -- if player goes out of the screen, reset his/her position and deduct half life
+        local tankx, tanky = PlayerTank:getPos()
+        if tankx < 0 or tankx > WINDOW_WIDTH
+           or tanky < 0 or tanky > WINDOW_HEIGHT then
+
+            PlayerTank:inflictDamage(PlayerTank:getHealth() * .5)
+            PlayerTank:setPos(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
         end
+        isPlayerDead()
 
         --- clear current level, load next level
-        if #ListOfEnemies == 0 then
+        if EnemiesToKill == 0 then
             Gamestate = "nextLevel"
             if MUSIC_PLAY:isPlaying() or MUSIC_START:isPlaying() then
                 MUSIC_PLAY:pause()
@@ -219,16 +218,23 @@ function love.update(dt)
                 MUSIC_OVER:play()
             end
         end
+
+        -- hehe, some enemies escaped
+        if #ListOfEnemies < EnemiesToKill then
+            spawnEnemy()
+        end
     end
 end
 
 function love.draw()
+    love.graphics.setBackgroundColor(1,1,1)
+    drawBackground()
+    ----
     if Gamestate == "start" then
         --[[
             print a big welcome message onto the screen,
             and other messages, including lore
         ]]
-        love.graphics.setBackgroundColor(35/255,53/255,43/255)
         love.graphics.printf(
             'TanKet',
             EXTRA_BIG_FONT,
@@ -285,10 +291,17 @@ function love.draw()
             "center"
         )
 
+        love.graphics.printf(
+            'Note: Touching a ghost causes more damage then taking a hit from ghost balls\n'
+            .. 'And, going out of screen decreases HP by 50%. BE CAREFUL',
+            SMALL_FONT,
+            0,
+            WINDOW_HEIGHT - 50,
+            WINDOW_WIDTH,
+            'center'
+        )
+
     elseif Gamestate == "play" then
-        love.graphics.setBackgroundColor(0,0,0)
-        drawBackground()
-        ---
         PlayerTank:render()
 
         for i, enemy in ipairs(ListOfEnemies) do
@@ -315,6 +328,7 @@ function love.draw()
                     table.remove(ListOfEnemies, j)
                     table.remove(ListOfMissiles, i)
                     PlayerScore = PlayerScore + 1
+                    EnemiesToKill = EnemiesToKill - 1
                 end
             end
         end
@@ -327,9 +341,6 @@ function love.draw()
         drawHUD()
 
     elseif Gamestate == "over" then
-        love.graphics.setBackgroundColor(35/255,53/255,43/255, .8)
-        drawBackground()
-
         love.graphics.printf(
             'Game Over',
             EXTRA_BIG_FONT,

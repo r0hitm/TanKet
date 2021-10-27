@@ -41,29 +41,28 @@ function spawnEnemy()
     -- randomly choose the enemy to spawn at their respective spawn location
     local rnd = math.random(1, 4)
     if rnd == 1 then
-        enemy = Fan350(100, math.random(300))
+        enemy = Fan350(0, math.random(500))
 
     elseif rnd == 2 then
-        enemy = Gantasmito(100, WINDOW_HEIGHT - 300)
+        enemy = Gantasmito(0, WINDOW_HEIGHT - 500)
 
     elseif rnd == 3 then
         if math.random() <= 0.5 then
-            enemy = Demonio(math.random(WINDOW_WIDTH - 400, WINDOW_WIDTH - 100), 100, false)
+            enemy = Demonio(math.random(WINDOW_WIDTH - 500, WINDOW_WIDTH), 100, false)
         else
-            enemy = Demonio(math.random(100, 400), WINDOW_HEIGHT - 100, true)
+            enemy = Demonio(math.random(0, 500), WINDOW_HEIGHT, true)
         end
 
     else
         if math.random() <= 0.5 then
-            enemy = Oscuro(math.random(500, 800), WINDOW_HEIGHT - 100, true)
+            enemy = Oscuro(math.random(0, 600), WINDOW_HEIGHT, true)
         else
-            enemy = Oscuro(WINDOW_WIDTH - 100, math.random(WINDOW_HEIGHT / 2 - 200, WINDOW_HEIGHT / 2 + 100), false)
+            enemy = Oscuro(WINDOW_WIDTH, math.random(0, WINDOW_HEIGHT / 2 + 100), false)
         end
     end
 
-    -- Increase Enemy Damage and speed based on Level
-    enemy:setDamage(enemy:getDamage() * Level)
-    enemy:setSpeed(enemy:getSpeed() + 0.1)
+    -- Increase Enemy speed based with each level
+    enemy:setSpeed(enemy:getSpeed() + 0.5)
 
     -- add to enemy list
     table.insert(ListOfEnemies, #ListOfEnemies + 1, enemy)
@@ -163,6 +162,22 @@ function drawHealthBar(hp)
 end
 
 --[[
+    End the game if the player is dead
+]]
+function isPlayerDead()
+    if PlayerTank:getHealth() == 0 then    -- yes
+        Gamestate = 'over'
+        if MUSIC_PLAY:isPlaying() or MUSIC_START:isPlaying() then
+            MUSIC_PLAY:pause()
+            MUSIC_START:pause()
+        end
+        if not MUSIC_OVER:isPlaying() then
+            MUSIC_OVER:play()
+        end
+    end
+end
+
+--[[
     draw heads up display
 ]]
 function drawHUD()
@@ -213,6 +228,7 @@ end
 function loadNextLevel()
     Level = Level + 1
     Enemy_Count = Enemy_Count + 5
+    EnemiesToKill = Enemy_Count
     ListOfMissiles = {}   ---------- reset the list of missiles
     spawnMultipleEnemies(Enemy_Count)
 end
@@ -231,6 +247,7 @@ function reset()
 
     ListOfEnemies = {}
     ListOfMissiles = {}
+    EnemiesToKill = Enemy_Count
     ListOfProjectiles = {}
 
     spawnMultipleEnemies(Enemy_Count)

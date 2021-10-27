@@ -20,7 +20,7 @@ function Projectile:new(x, y)
 
     self.scale = .4
 
-    self.damage = 1
+    self.damage = 5
 
     self.width = self.sprite:getHeight() * self.scale
     self.height = self.sprite:getWidth() * self.scale
@@ -54,4 +54,8 @@ end
 
 function Projectile:getDamage()
     return self.damage
+end
+
+function Projectile:setDamage(dmg)
+    self.damage = dmg
 end
