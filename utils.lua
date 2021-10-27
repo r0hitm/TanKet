@@ -16,7 +16,9 @@ function player_movement(dt)
         PlayerTank:moveForward(dt)
     elseif love.keyboard.isDown('s') then
         PlayerTank:moveBackward(dt)
-    elseif love.keyboard.isDown('a') then
+    end
+
+    if love.keyboard.isDown('a') then
         PlayerTank:turnLeft(dt)
     elseif love.keyboard.isDown('d') then
         PlayerTank:turnRight(dt)
