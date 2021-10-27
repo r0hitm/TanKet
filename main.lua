@@ -389,6 +389,9 @@ function love.keypressed(key)
 
         elseif Gamestate == "nextLevel" then
             Gamestate = "play"
+
+            -- reset player
+            PlayerTank = Tank(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
             loadNextLevel()
         end
     end

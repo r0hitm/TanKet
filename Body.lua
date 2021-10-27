@@ -43,6 +43,14 @@ function Body:getSpeed()
 end
 
 --[[
+    sets the position for the body
+]]
+function Body:setPos(x, y)
+    self.x = x
+    self.y = y
+end
+
+--[[
     get the current position of the Body
 ]]
 function Body:getPos()
