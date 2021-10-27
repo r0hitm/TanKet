@@ -168,6 +168,14 @@ function love.update(dt)
                 SFX_HURT:play()
                 PlayerTank:inflictDamage(enemy:getDamage())
             end
+
+            -- shoot missile at random
+            if math.random(0,500) == 1  then
+                local projectile = Projectile(enemy:getPos())
+                projectile:setDirection(PlayerTank:getPos())
+                table.insert(ListOfProjectiles, #ListOfProjectiles + 1, projectile)
+            end
+
             enemy:move(dt)
         end
 
