@@ -68,16 +68,6 @@ function love.load()
 
     HUD_HEIGHT = love.graphics.getHeight() *  0.05
 
-    --[[
-        Using glow effect from moonshine.
-        https://github.com/vrld/moonshine
-    ]]
-    local moonshine = require 'moonshine'
-    GhostEffect = moonshine(WINDOW_WIDTH, WINDOW_HEIGHT, moonshine.effects.glow)
-    GhostEffect.parameters = {
-        glow = {strength = 1, min_luma = 1}
-    }
-
     love.window.setTitle('TanKet')
     --[[
         Running game in windowed mode with no resizability.
@@ -275,19 +265,16 @@ function love.draw()
         ---
         PlayerTank:render()
 
-        ----- render the enemies with the ghost effect glow
-        GhostEffect(function ()
-            for i, enemy in ipairs(ListOfEnemies) do
-                --- remove the enemies if they reach out of screen
-                local x, y = enemy:getPos()
-                if x > WINDOW_WIDTH or x < 0 or
-                    y > WINDOW_HEIGHT or y < 0 then
-                        table.remove(ListOfEnemies, i)
-                    end
+        for i, enemy in ipairs(ListOfEnemies) do
+            --- remove the enemies if they reach out of screen
+            local x, y = enemy:getPos()
+            if x > WINDOW_WIDTH or x < 0 or
+                y > WINDOW_HEIGHT or y < 0 then
+                    table.remove(ListOfEnemies, i)
+                end
 
-                enemy:render()
-            end
-        end)
+            enemy:render()
+        end
 
         ----- following loop does three things:
         -- renders missile
