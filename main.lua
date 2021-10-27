@@ -30,7 +30,7 @@ function love.load()
     require 'Missile'
     require 'Projectile'
 
-    math.randomseed(os.time())
+    love.math.setRandomSeed(os.time())
 
     ----------------------------------------------------------------------------
     -- Constants:
@@ -92,7 +92,7 @@ function love.load()
         love.graphics.setColor(1,1,1,0.9)
         for i = 0, love.graphics.getWidth() / SOIL_PNG:getWidth() do
             for j = 0, love.graphics.getHeight() / SOIL_PNG:getHeight() do
-                love.graphics.draw(math.random() < 0.3 and GRASS_PNG or SOIL_PNG, i * SOIL_PNG:getWidth(), j * SOIL_PNG:getHeight())
+                love.graphics.draw(love.math.random() < 0.3 and GRASS_PNG or SOIL_PNG, i * SOIL_PNG:getWidth(), j * SOIL_PNG:getHeight())
             end
         end
     love.graphics.setCanvas()
@@ -170,7 +170,7 @@ function love.update(dt)
             end
 
             -- shoot missile at random
-            if math.random(0,500) == 1  then
+            if love.math.random(0,500) == 1  then
                 local projectile = Projectile(enemy:getPos())
                 projectile:setDirection(PlayerTank:getPos())
                 table.insert(ListOfProjectiles, #ListOfProjectiles + 1, projectile)
