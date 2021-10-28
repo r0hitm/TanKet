@@ -33,22 +33,7 @@ end
     Float Number Number -> nil
     moves the enemy towards the given coordinates (x, y) by in dt
 
-    Default chase pattern: Follow the given points straight.
+    Generic def. will be overriden by each enemy.
 ]]
--- function Enemy:moveTowards(dt, x, y)
---     -- move along x-axis
---     if x > self.x then      -- move towards right of current position
---         self.x = self.x + self.speed * dt
---     elseif x < self.x then  -- move towards the left of current position
---         self.x = self.x - self.speed * dt
---     end
-
---     -- move along y-axis
---     if y > self.y then      -- move down from the current position
---         self.y = self.y + self.speed * dt
---     elseif y < self.y then  -- move up from the current position
---         self.y = self.y - self.speed * dt
---     end
--- end
 function Enemy:move(dt)
 end
