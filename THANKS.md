@@ -3,7 +3,7 @@
 This Project uses the assets that these awesome people provided for free
 
 
-## assets/**explosion**
+## assets/**explosion.png** **projectile.png**
 - Author: https://agresko.itch.io/
 - Asset URL: https://agresko.itch.io/explosion-animation---7x
 
