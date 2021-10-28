@@ -79,7 +79,6 @@ Splitting a big main file into `main.lua` and `utils.lua` really simplified some
 ###### `THANKS.md`
 This file attributes all the people who have provided assets for building this game
 such as characters, music, sfx etc.
-Note: This project uses a free font.
 
 
 I really enjoyed doing this project. It was both challenging and fun!
