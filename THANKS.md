@@ -15,10 +15,6 @@ This Project uses the assets that these awesome people provided for free
 - Author: https://zintoki.itch.io/
 - Asset URL: https://zintoki.itch.io/ground-shaker
 
-## assets/textures/**wall.png**
-- Author: https://vectorpixelstar.itch.io/
-- Asset URL: https://vectorpixelstar.itch.io/textures
-
 ## assets/textures/**soil.jpg**
 - Author: https://grumpydiamond.itch.io/
 - Asset URL: https://grumpydiamond.itch.io/small-grass-tileset-16x16
